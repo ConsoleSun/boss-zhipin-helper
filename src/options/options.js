@@ -207,11 +207,19 @@ async function callDeepSeekForResume(resumeText, apiKey, provider = 'deepseek') 
 
   if (!resp.ok) throw new Error('API请求失败: ' + resp.status);
   const data = await resp.json();
-  const content = data?.choices?.[0]?.message?.content || '';
+  let content = data?.choices?.[0]?.message?.content || '';
+
+  // 尝试从 markdown 代码块中提取
+  const codeMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (codeMatch) content = codeMatch[1];
+
+  // 提取 JSON 对象（非贪婪匹配第一个完整对象）
   const jsonMatch = content.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error('AI 返回格式异常');
+  if (!jsonMatch) {
+    console.error('[Resume] AI原始返回:', content.substring(0, 200));
+    throw new Error('AI 返回格式异常');
+  }
   const parsed = JSON.parse(jsonMatch[0]);
-  // 附加原始文本供 AI 参考
   parsed.fullText = resumeText;
   return parsed;
 }
