@@ -213,13 +213,40 @@ async function callDeepSeekForResume(resumeText, apiKey, provider = 'deepseek') 
   const codeMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
   if (codeMatch) content = codeMatch[1];
 
-  // 提取 JSON 对象（非贪婪匹配第一个完整对象）
+  // 提取 JSON 对象
   const jsonMatch = content.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
     console.error('[Resume] AI原始返回:', content.substring(0, 200));
     throw new Error('AI 返回格式异常');
   }
-  const parsed = JSON.parse(jsonMatch[0]);
+
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonMatch[0]);
+  } catch (jsonErr) {
+    // JSON 有语法错误时，尝试修复常见问题
+    console.error('[Resume] JSON解析失败，尝试修复:', jsonErr.message);
+    // 重新请求一次（简化格式）
+    const retryResp = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: 'system', content: '从简历文本提取信息，只返回纯JSON，不要markdown。所有字段用字符串，不要数组。' },
+          { role: 'user', content: text + '\n\n返回格式：{"name":"","phone":"","email":"","skills":"","experience":"","education":"","summary":"","expectedSalary":""}' },
+        ],
+        temperature: 0, max_tokens: 600,
+      }),
+    });
+    if (!retryResp.ok) throw new Error('重试请求失败: ' + retryResp.status);
+    const retryData = await retryResp.json();
+    let retryContent = retryData?.choices?.[0]?.message?.content || '';
+    const retryMatch = retryContent.match(/\{[\s\S]*\}/);
+    if (!retryMatch) throw new Error('重试解析失败');
+    parsed = JSON.parse(retryMatch[0]);
+  }
+
   parsed.fullText = resumeText;
   return parsed;
 }
