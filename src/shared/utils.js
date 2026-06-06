@@ -54,7 +54,7 @@ export async function retryOperation(fn, maxRetries = 3, baseDelay = 100) {
 export function isBossDomain(url) {
   try {
     const hostname = new URL(url).hostname;
-    return hostname.includes('boss.cn') || hostname.includes('zhipin.com');
+    return hostname.includes('boss.cn') || hostname.includes('zhipin.com') || hostname.includes('zhaopin');
   } catch {
     return false;
   }

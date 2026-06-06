@@ -122,6 +122,9 @@ export class AIReplyAssistant {
     const sel = [
       '.job-detail-section', '.job-desc', '.job-detail-text',
       '.detail-bottom-text', '[class*="job-desc"]', '[class*="job-detail"]',
+      // 智联招聘
+      '.position-detail', '.position-description', '[class*="description"]',
+      '.position-content', '.detail-content', '[class*="detail-content"]',
     ];
     let desc = '';
     for (const s of sel) {

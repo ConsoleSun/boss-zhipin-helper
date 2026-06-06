@@ -3,7 +3,7 @@
 // ============================================================
 
 // 域名白名单
-export const DOMAINS = ['boss.cn', 'zhipin.com'];
+export const DOMAINS = ['boss.cn', 'zhipin.com', 'zhaopin.cn', 'zhaopin.com'];
 
 // IndexedDB 配置
 export const DB_NAME = 'bossZhipinHelper';

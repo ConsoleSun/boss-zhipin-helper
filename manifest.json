@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "BOSS直聘助手",
   "version": "1.0.0",
-  "description": "辅助沟通、消息分类与求职追踪 — 模板填充、快捷回复、数据统计",
+  "description": "BOSS直聘/智联招聘求职助手 — AI打招呼、智能回复、岗位管理",
   "default_locale": "zh_CN",
   "permissions": [
     "storage",
@@ -15,6 +15,8 @@
   "host_permissions": [
     "https://*.boss.cn/*",
     "https://*.zhipin.com/*",
+    "https://*.zhaopin.cn/*",
+    "https://*.zhaopin.com/*",
     "https://api.deepseek.com/*",
     "https://api.xiaomimimo.com/*"
   ],
@@ -26,7 +28,9 @@
     {
       "matches": [
         "https://*.boss.cn/*",
-        "https://*.zhipin.com/*"
+        "https://*.zhipin.com/*",
+        "https://*.zhaopin.cn/*",
+        "https://*.zhaopin.com/*"
       ],
       "js": [
         "src/content/main.js"
@@ -61,7 +65,9 @@
       ],
       "matches": [
         "https://*.boss.cn/*",
-        "https://*.zhipin.com/*"
+        "https://*.zhipin.com/*",
+        "https://*.zhaopin.cn/*",
+        "https://*.zhaopin.com/*"
       ]
     }
   ]

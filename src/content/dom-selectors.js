@@ -262,6 +262,82 @@ export const SELECTORS = {
       '[class*="dialog"]',
     ],
   },
+
+  // ==================== 智联招聘 ====================
+  zhaopin: {
+    // 职位详情页
+    jobDetail: {
+      communicateButton: [
+        'a[class*="apply"], a[class*="chat"], a[class*="communicate"]',
+        { type: 'text', tag: 'a', text: '立即沟通' },
+        { type: 'text', tag: 'button', text: '立即沟通' },
+        { type: 'text', tag: 'a', text: '立即沟通' },
+      ],
+      positionName: [
+        'h1[class*="title"], .position-title h1, .job-title h1, .job-name h1',
+        '.position-info h1',
+      ],
+      companyName: [
+        'a[class*="company"], .company-name a, .company-info a',
+        '[class*="company-name"]',
+      ],
+      salary: [
+        '.position-salary, .job-salary, [class*="salary"]',
+        '.salary-text',
+      ],
+      jobDescription: [
+        '.position-detail, .job-detail, .position-description',
+        '[class*="description"], [class*="detail-content"]',
+        '.position-content',
+      ],
+    },
+    // 聊天页
+    chat: {
+      messageContainer: [
+        '.chat-messages, .message-list, .chat-list, [class*="message"] > div',
+      ],
+      messageItems: [
+        '.message-item, .chat-message, .msg-item, [class*="message-item"]',
+      ],
+      hrMessage: [
+        '.message-item.hr, .chat-message--hr, .msg-receive, .message-left',
+      ],
+      userMessage: [
+        '.message-item.user, .chat-message--self, .msg-send, .message-right',
+      ],
+      messageText: [
+        '.message-content-text, .message-text, .msg-text, [class*="text"]',
+      ],
+      inputArea: [
+        '.chat-input textarea, .chat-input div[contenteditable]',
+        'textarea[class*="input"], textarea[class*="chat"]',
+        { tag: 'textarea', role: 'textbox' },
+      ],
+      sendButton: [
+        '.chat-send-btn, .send-btn, button[class*="send"]',
+        { type: 'text', tag: 'button', text: '发送' },
+      ],
+      chatPanel: [
+        '.chat-panel, .chat-dialog, .chat-window, .im-panel, [class*="chat-panel"]',
+      ],
+    },
+    // 职位列表
+    jobList: {
+      jobCards: [
+        '.position-card, .job-card, .position-item, [class*="job-card"]',
+        '.positionlist-item, li[class*="position"]',
+      ],
+      jobCardTitle: [
+        '.position-title a, .job-title a, .position-name a, [class*="title"] a',
+      ],
+      jobCardCompany: [
+        '.company-name a, .company-info a, [class*="company"] a',
+      ],
+      jobCardSalary: [
+        '.position-salary, .job-salary, [class*="salary"]',
+      ],
+    },
+  },
 };
 
 /**

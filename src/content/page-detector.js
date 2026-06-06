@@ -40,14 +40,15 @@ export class PageDetector {
    */
   static _detectByUrl(url) {
     const urlLower = url.toLowerCase();
+    const isZhaopin = urlLower.includes('zhaopin.cn') || urlLower.includes('zhaopin.com');
 
-    // 聊天页面: /chat/, /geek/chat/, /web/chat/
+    // 聊天页面: /chat/, /geek/chat/, /web/chat/, /im/
     if (/\/chat\//.test(urlLower) || /\/im\//.test(urlLower) || /\/geek\/chat/.test(urlLower)) {
       return PAGE_TYPES.CHAT;
     }
 
-    // 职位详情: /job_detail/, /job-detail/
-    if (/\/job[_-]?detail\//.test(urlLower)) {
+    // 职位详情: /job_detail/, /job-detail/, /position/detail/
+    if (/\/job[_-]?detail\//.test(urlLower) || /\/position\/detail\//.test(urlLower)) {
       return PAGE_TYPES.JOB_DETAIL;
     }
 
@@ -56,20 +57,26 @@ export class PageDetector {
       return PAGE_TYPES.CANDIDATE_HOME;
     }
 
-    // 职位列表: 城市编码路径 /c101010000/, 搜索 /job/search, /job/list
+    // 职位列表: 城市编码路径 /c101010000/, 搜索 /job/search, /job/list, /position/search
     if (/\/c\d+\//.test(urlLower) ||
         /\/job\/list/.test(urlLower) ||
         /\/job\/search/.test(urlLower) ||
+        /\/position\/search/.test(urlLower) ||
         /\/search\//.test(urlLower)) {
       return PAGE_TYPES.JOB_LIST;
     }
 
-    // 首页: 根路径或 /web/job/
+    // 首页: 根路径
     if (urlLower.endsWith('boss.cn/') ||
         urlLower.endsWith('boss.cn') ||
         urlLower.endsWith('zhipin.com/') ||
         urlLower.endsWith('zhipin.com') ||
-        /\/web\/job\/?$/.test(urlLower)) {
+        urlLower.endsWith('zhaopin.cn/') ||
+        urlLower.endsWith('zhaopin.cn') ||
+        urlLower.endsWith('zhaopin.com/') ||
+        urlLower.endsWith('zhaopin.com') ||
+        /\/web\/job\/?$/.test(urlLower) ||
+        /\/web\/position/.test(urlLower)) {
       return PAGE_TYPES.JOB_LIST;
     }
 
@@ -81,8 +88,9 @@ export class PageDetector {
    */
   static _extractJobId(url) {
     try {
-      // URL 路径: /job_detail/xxx.html
-      const pathMatch = url.match(/\/job[_-]?detail\/([A-Za-z0-9_-]+)/);
+      // URL 路径: /job_detail/xxx.html 或 /position/detail/xxx
+      const pathMatch = url.match(/\/job[_-]?detail\/([A-Za-z0-9_-]+)/) ||
+                        url.match(/\/position\/detail\/([A-Za-z0-9_-]+)/);
       if (pathMatch) return pathMatch[1];
 
       // Query 参数
@@ -90,6 +98,7 @@ export class PageDetector {
       return urlObj.searchParams.get('jobId') ||
              urlObj.searchParams.get('positionId') ||
              urlObj.searchParams.get('lid') ||
+             urlObj.searchParams.get('id') ||
              null;
     } catch {
       return null;
