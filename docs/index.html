@@ -5,732 +5,523 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BOSS直聘助手 — AI求职辅助 Chrome 扩展</title>
   <meta name="description" content="BOSS直聘/智联招聘求职助手，AI打招呼、智能回复、简历解析、岗位管理、数据统计，双模型支持 DeepSeek & MiMo 2.5">
-
-  <!-- Open Graph -->
   <meta property="og:title" content="BOSS直聘助手 — AI求职辅助 Chrome 扩展">
   <meta property="og:description" content="AI打招呼、智能回复、简历解析、岗位管理，让求职效率翻倍">
   <meta property="og:type" content="website">
-
   <style>
     /* ========== Reset & Variables ========== */
     *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
-
     :root {
-      --primary: #667eea;
-      --primary-dark: #5b3cc4;
-      --accent: #764ba2;
+      --primary: #667eea; --primary-dark: #5b3cc4; --accent: #764ba2;
       --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #5b3cc4 100%);
-      --gradient-warm: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      --gradient-cool: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-      --gradient-green: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-      --bg: #0a0a1a;
-      --bg-card: rgba(255,255,255,0.04);
-      --text: #e8e8f0;
-      --text-muted: #9898b0;
-      --border: rgba(255,255,255,0.06);
-      --radius: 16px;
-      --radius-sm: 10px;
-      --shadow-lg: 0 25px 80px rgba(102,126,234,0.15);
-      --max-w: 1200px;
+      --bg: #0a0a1a; --bg-card: rgba(255,255,255,0.04);
+      --text: #e8e8f0; --text-muted: #9898b0;
+      --border: rgba(255,255,255,0.06); --radius: 16px; --radius-sm: 10px;
+      --shadow-lg: 0 25px 80px rgba(102,126,234,0.15); --max-w: 1200px;
     }
-
     html { scroll-behavior: smooth; }
-
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
+      font-family: -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;
+      background: var(--bg); color: var(--text); line-height: 1.7; overflow-x: hidden; -webkit-font-smoothing: antialiased;
     }
-
-    /* ========== Animated Background ========== */
-    .bg-orb {
-      position: fixed;
-      border-radius: 50%;
-      filter: blur(120px);
-      opacity: 0.15;
-      pointer-events: none;
-      z-index: 0;
-    }
-    .bg-orb-1 { width: 600px; height: 600px; background: #667eea; top: -200px; right: -200px; animation: float1 20s ease-in-out infinite; }
-    .bg-orb-2 { width: 500px; height: 500px; background: #764ba2; bottom: -150px; left: -150px; animation: float2 25s ease-in-out infinite; }
-    .bg-orb-3 { width: 400px; height: 400px; background: #f5576c; top: 50%; left: 50%; animation: float3 18s ease-in-out infinite; }
-    .bg-orb-4 { width: 300px; height: 300px; background: #4facfe; top: 10%; right: 20%; animation: float4 22s ease-in-out infinite; }
-
-    @keyframes float1 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(-60px,40px) scale(1.1); } 66% { transform: translate(30px,-30px) scale(0.9); } }
-    @keyframes float2 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(50px,-30px) scale(1.15); } 66% { transform: translate(-40px,20px) scale(0.85); } }
-    @keyframes float3 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-40px,-40px) scale(1.2); } }
-    @keyframes float4 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(50px,50px) scale(1.1); } }
+    /* ========== Animated BG Orbs ========== */
+    .bg-orb { position:fixed; border-radius:50%; filter:blur(120px); opacity:0.13; pointer-events:none; z-index:0; }
+    .bg-orb-1 { width:600px; height:600px; background:#667eea; top:-200px; right:-200px; animation:float1 20s infinite; }
+    .bg-orb-2 { width:500px; height:500px; background:#764ba2; bottom:-150px; left:-150px; animation:float2 25s infinite; }
+    .bg-orb-3 { width:400px; height:400px; background:#f5576c; top:50%; left:50%; animation:float3 18s infinite; }
+    @keyframes float1 { 0%,100%{transform:translate(0,0)scale(1)}33%{transform:translate(-60px,40px)scale(1.1)}66%{transform:translate(30px,-30px)scale(.9)} }
+    @keyframes float2 { 0%,100%{transform:translate(0,0)scale(1)}33%{transform:translate(50px,-30px)scale(1.15)}66%{transform:translate(-40px,20px)scale(.85)} }
+    @keyframes float3 { 0%,100%{transform:translate(0,0)scale(1)}50%{transform:translate(-40px,-40px)scale(1.2)} }
 
     /* ========== Nav ========== */
-    .nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-      background: rgba(10,10,26,0.75); backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
-      transition: all 0.3s ease;
-    }
-    .nav-inner {
-      max-width: var(--max-w); margin: 0 auto;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 24px;
-    }
-    .nav-logo {
-      display: flex; align-items: center; gap: 10px;
-      font-size: 18px; font-weight: 700; color: #fff; text-decoration: none;
-      letter-spacing: 0.5px;
-    }
-    .nav-logo .icon {
-      width: 36px; height: 36px; border-radius: 10px;
-      background: var(--gradient); display: flex; align-items: center; justify-content: center;
-      font-size: 20px; box-shadow: 0 4px 15px rgba(102,126,234,0.4);
-    }
-    .nav-links { display: flex; gap: 32px; list-style: none; }
-    .nav-links a {
-      color: var(--text-muted); text-decoration: none; font-size: 14px;
-      font-weight: 500; transition: color 0.2s; letter-spacing: 0.3px;
-    }
-    .nav-links a:hover { color: #fff; }
-    .nav-cta {
-      background: var(--gradient); color: #fff; border: none;
-      padding: 10px 24px; border-radius: 25px; font-size: 14px;
-      font-weight: 600; cursor: pointer; transition: all 0.3s;
-      box-shadow: 0 4px 20px rgba(102,126,234,0.35);
-      text-decoration: none; letter-spacing: 0.4px;
-    }
-    .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(102,126,234,0.5); }
-
-    /* ========== Sections ========== */
-    section { position: relative; z-index: 1; }
+    .nav { position:fixed; top:0; left:0; right:0; z-index:1000; background:rgba(10,10,26,0.75); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); transition:all .3s; }
+    .nav-inner { max-width:var(--max-w); margin:0 auto; display:flex; align-items:center; justify-content:space-between; padding:16px 24px; }
+    .nav-logo { display:flex; align-items:center; gap:10px; font-size:18px; font-weight:700; color:#fff; text-decoration:none; }
+    .nav-logo .icon { width:36px; height:36px; border-radius:10px; background:var(--gradient); display:flex; align-items:center; justify-content:center; font-size:20px; box-shadow:0 4px 15px rgba(102,126,234,0.4); }
+    .nav-links { display:flex; gap:32px; list-style:none; }
+    .nav-links a { color:var(--text-muted); text-decoration:none; font-size:14px; font-weight:500; transition:color .2s; }
+    .nav-links a:hover { color:#fff; }
+    .nav-cta { background:var(--gradient); color:#fff; padding:10px 24px; border-radius:25px; font-size:14px; font-weight:600; text-decoration:none; box-shadow:0 4px 20px rgba(102,126,234,0.35); transition:all .3s; }
+    .nav-cta:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(102,126,234,0.5); }
 
     /* ========== Hero ========== */
-    .hero {
-      min-height: 100vh; display: flex; align-items: center;
-      padding: 120px 24px 80px;
-    }
-    .hero-inner {
-      max-width: var(--max-w); margin: 0 auto;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
-    }
-    .hero-badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: rgba(102,126,234,0.1); border: 1px solid rgba(102,126,234,0.2);
-      padding: 6px 16px; border-radius: 20px; font-size: 13px;
-      color: #a0a8f0; margin-bottom: 24px; letter-spacing: 0.3px;
-    }
-    .hero-badge .dot { width: 8px; height: 8px; background: #52c41a; border-radius: 50%; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+    .hero { min-height:100vh; display:flex; align-items:center; padding:120px 24px 80px; position:relative; z-index:1; }
+    .hero-inner { max-width:var(--max-w); margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; }
+    .hero-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(102,126,234,0.1); border:1px solid rgba(102,126,234,0.2); padding:6px 16px; border-radius:20px; font-size:13px; color:#a0a8f0; margin-bottom:24px; }
+    .hero-badge .dot { width:8px; height:8px; background:#52c41a; border-radius:50%; animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.3} }
+    .hero h1 { font-size:clamp(36px,5vw,56px); font-weight:800; line-height:1.2; margin-bottom:20px; }
+    .hero h1 .gradient-text { background:var(--gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .hero p { font-size:17px; color:var(--text-muted); margin-bottom:36px; max-width:480px; line-height:1.8; }
+    .hero-btns { display:flex; gap:16px; flex-wrap:wrap; }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:14px 32px; border-radius:30px; font-size:15px; font-weight:600; cursor:pointer; transition:all .3s cubic-bezier(0.4,0,0.2,1); text-decoration:none; border:none; }
+    .btn-primary { background:var(--gradient); color:#fff; box-shadow:0 8px 30px rgba(102,126,234,0.4); }
+    .btn-primary:hover { transform:translateY(-3px); box-shadow:0 12px 40px rgba(102,126,234,0.55); }
+    .btn-outline { background:rgba(255,255,255,0.04); color:#fff; border:1px solid rgba(255,255,255,0.15); }
+    .btn-outline:hover { background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.25); }
 
-    .hero h1 {
-      font-size: clamp(36px, 5vw, 56px); font-weight: 800;
-      line-height: 1.2; margin-bottom: 20px; letter-spacing: 1px;
+    /* Hero mockup */
+    .hero-mockup { position:relative; display:flex; align-items:center; justify-content:center; perspective:1000px; }
+    .mockup-card {
+      background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:var(--radius);
+      padding:16px; backdrop-filter:blur(10px); box-shadow:var(--shadow-lg); width:340px;
+      transform:rotateY(-4deg) rotateX(2deg); transition:transform .5s;
     }
-    .hero h1 .gradient-text {
-      background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .hero p {
-      font-size: 17px; color: var(--text-muted); margin-bottom: 36px;
-      max-width: 480px; line-height: 1.8;
-    }
-    .hero-btns { display: flex; gap: 16px; flex-wrap: wrap; }
-    .btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 14px 32px; border-radius: 30px; font-size: 15px;
-      font-weight: 600; cursor: pointer; transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-      text-decoration: none; letter-spacing: 0.4px; border: none;
-    }
-    .btn-primary {
-      background: var(--gradient); color: #fff;
-      box-shadow: 0 8px 30px rgba(102,126,234,0.4);
-    }
-    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(102,126,234,0.55); }
-    .btn-outline {
-      background: rgba(255,255,255,0.04); color: #fff;
-      border: 1px solid rgba(255,255,255,0.15);
-    }
-    .btn-outline:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.25); }
-
-    /* Hero preview */
-    .hero-preview {
-      position: relative;
-    }
-    .preview-card {
-      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 20px; backdrop-filter: blur(10px);
-      box-shadow: var(--shadow-lg);
-      transform: perspective(1000px) rotateY(-5deg) rotateX(3deg);
-      transition: transform 0.5s ease;
-    }
-    .preview-card:hover { transform: perspective(1000px) rotateY(0deg) rotateX(0deg); }
-    .preview-header {
-      display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
-      padding-bottom: 12px; border-bottom: 1px solid var(--border);
-    }
-    .preview-dots { display: flex; gap: 6px; }
-    .preview-dots span { width: 10px; height: 10px; border-radius: 50%; }
-    .preview-dots span:nth-child(1) { background: #ff5f57; }
-    .preview-dots span:nth-child(2) { background: #ffbd2e; }
-    .preview-dots span:nth-child(3) { background: #28ca41; }
-    .preview-title { font-size: 12px; color: var(--text-muted); margin-left: 8px; }
-    .preview-content {
-      display: flex; flex-direction: column; gap: 10px;
-    }
-    .preview-line {
-      height: 8px; border-radius: 4px; background: rgba(255,255,255,0.04);
-    }
-    .preview-line.short { width: 60%; }
-    .preview-line.medium { width: 80%; }
-    .preview-bubble {
-      padding: 10px 14px; border-radius: 10px; font-size: 12px;
-      margin-top: 8px;
-    }
-    .preview-bubble.ai {
-      background: rgba(114,46,209,0.15); border-left: 3px solid #722ed1;
-      color: #c0b0f0;
-    }
-    .preview-badge {
-      display: inline-block; padding: 4px 12px; border-radius: 12px;
-      font-size: 11px; font-weight: 600; margin-top: 8px;
-      background: rgba(82,196,26,0.12); color: #52c41a;
-    }
-
-    /* Floating elements around preview */
-    .float-card {
-      position: absolute; background: rgba(255,255,255,0.06);
-      border: 1px solid var(--border); border-radius: var(--radius-sm);
-      padding: 14px 18px; backdrop-filter: blur(15px);
-      font-size: 13px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-      animation: floatCard 6s ease-in-out infinite;
-    }
-    .float-card-1 { top: -30px; right: -40px; animation-delay: 0s; }
-    .float-card-2 { bottom: -20px; left: -50px; animation-delay: -3s; }
-    @keyframes floatCard {
-      0%,100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
-    }
+    .mockup-card:hover { transform:rotateY(0) rotateX(0); }
+    .mockup-hdr { display:flex; align-items:center; gap:8px; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+    .mockup-dots { display:flex; gap:5px; } .mockup-dots span { width:8px; height:8px; border-radius:50%; }
+    .mockup-dots span:nth-child(1){background:#ff5f57}.mockup-dots span:nth-child(2){background:#ffbd2e}.mockup-dots span:nth-child(3){background:#28ca41}
+    .mockup-hdr span { font-size:11px; color:var(--text-muted); margin-left:6px; }
+    .mockup-line { height:7px; border-radius:4px; background:rgba(255,255,255,0.04); margin-bottom:8px; }
+    .mockup-line.s { width:55%; } .mockup-line.m { width:78%; }
+    .mockup-bubble { padding:10px 12px; border-radius:10px; font-size:11px; line-height:1.5; margin:10px 0; background:rgba(114,46,209,0.12); border-left:3px solid #722ed1; color:#c0b0f0; }
+    .mockup-tag { display:inline-block; padding:3px 10px; border-radius:12px; font-size:10px; font-weight:600; background:rgba(82,196,26,0.1); color:#52c41a; }
 
     /* ========== Section Headers ========== */
-    .section-header {
-      text-align: center; max-width: 650px; margin: 0 auto 64px;
-    }
-    .section-tag {
-      display: inline-block; padding: 4px 14px; border-radius: 20px;
-      font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
-      background: rgba(102,126,234,0.1); color: #a0a8f0; margin-bottom: 16px;
-    }
-    .section-header h2 {
-      font-size: clamp(28px, 4vw, 40px); font-weight: 700;
-      margin-bottom: 16px; letter-spacing: 0.5px;
-    }
-    .section-header p {
-      font-size: 16px; color: var(--text-muted); line-height: 1.8;
-    }
+    section { position:relative; z-index:1; }
+    .section-header { text-align:center; max-width:650px; margin:0 auto 64px; }
+    .section-tag { display:inline-block; padding:4px 14px; border-radius:20px; font-size:12px; font-weight:600; letter-spacing:1px; background:rgba(102,126,234,0.1); color:#a0a8f0; margin-bottom:16px; }
+    .section-header h2 { font-size:clamp(28px,4vw,40px); font-weight:700; margin-bottom:16px; }
+    .section-header p { font-size:16px; color:var(--text-muted); line-height:1.8; }
 
     /* ========== Features ========== */
-    #features { padding: 100px 24px; }
-    .features-grid {
-      max-width: var(--max-w); margin: 0 auto;
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
-    }
-    .feature-card {
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 36px 28px;
-      transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
-      position: relative; overflow: hidden;
-    }
-    .feature-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: var(--gradient); opacity: 0; transition: opacity 0.35s;
-    }
-    .feature-card:hover { transform: translateY(-6px); border-color: rgba(102,126,234,0.25); box-shadow: 0 20px 60px rgba(102,126,234,0.08); }
-    .feature-card:hover::before { opacity: 1; }
-    .feature-icon {
-      width: 48px; height: 48px; border-radius: 14px; display: flex;
-      align-items: center; justify-content: center; font-size: 24px;
-      margin-bottom: 20px;
-    }
-    .feature-icon.purple { background: rgba(102,126,234,0.12); }
-    .feature-icon.green { background: rgba(82,196,26,0.12); }
-    .feature-icon.orange { background: rgba(250,173,20,0.12); }
-    .feature-icon.blue { background: rgba(24,144,255,0.12); }
-    .feature-icon.pink { background: rgba(235,47,150,0.12); }
-    .feature-icon.cyan { background: rgba(0,242,254,0.12); }
-    .feature-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; letter-spacing: 0.3px; }
-    .feature-card p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+    #features { padding:80px 24px 100px; }
+    .features-grid { max-width:var(--max-w); margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
+    .feat-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:28px 22px; transition:all .35s; position:relative; overflow:hidden; }
+    .feat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--gradient); opacity:0; transition:opacity .35s; }
+    .feat-card:hover { transform:translateY(-5px); border-color:rgba(102,126,234,0.25); box-shadow:0 20px 60px rgba(102,126,234,0.06); }
+    .feat-card:hover::before { opacity:1; }
+    .feat-card .icon { font-size:28px; margin-bottom:14px; }
+    .feat-card h3 { font-size:15px; font-weight:700; margin-bottom:8px; }
+    .feat-card p { font-size:13px; color:var(--text-muted); line-height:1.7; }
 
-    /* ========== Showcase ========== */
-    #showcase { padding: 60px 24px 120px; }
-    .showcase-inner { max-width: var(--max-w); margin: 0 auto; }
-    .showcase-grid {
-      display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px;
-    }
-    .showcase-card {
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: var(--radius); overflow: hidden;
-      transition: all 0.35s ease;
-    }
-    .showcase-card:hover { border-color: rgba(102,126,234,0.2); transform: translateY(-4px); }
-    .showcase-img {
-      width: 100%; aspect-ratio: 16/10; background: rgba(255,255,255,0.02);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 64px; border-bottom: 1px solid var(--border);
-      position: relative; overflow: hidden;
-    }
-    .showcase-img::after {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(180deg, transparent 60%, rgba(10,10,26,0.6) 100%);
-    }
-    .showcase-body { padding: 24px 28px; }
-    .showcase-body h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
-    .showcase-body p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+    /* ========== Showcase — Real Extension UI ========== */
+    #showcase { padding:40px 24px 100px; }
+    .showcase-row { max-width:var(--max-w); margin:0 auto 40px; display:flex; align-items:center; gap:48px; }
+    .showcase-row.reverse { flex-direction:row-reverse; }
+    .showcase-label { flex-shrink:0; }
+    .showcase-label h3 { font-size:22px; font-weight:700; margin-bottom:8px; }
+    .showcase-label .tag { display:inline-block; font-size:11px; padding:3px 10px; border-radius:12px; background:rgba(102,126,234,0.1); color:#a0a8f0; margin-bottom:12px; }
+    .showcase-label p { font-size:14px; color:var(--text-muted); line-height:1.8; max-width:320px; }
+    .showcase-device { flex:1; display:flex; justify-content:center; }
 
-    /* ========== How to Use ========== */
-    #howto { padding: 0 24px 120px; }
-    .steps {
-      max-width: 800px; margin: 0 auto;
-    }
-    .step {
-      display: flex; gap: 24px; margin-bottom: 36px;
-      position: relative;
-    }
-    .step::after {
-      content: ''; position: absolute; left: 21px; top: 52px; bottom: -36px;
-      width: 2px; background: linear-gradient(180deg, rgba(102,126,234,0.4), transparent);
-    }
-    .step:last-child::after { display: none; }
-    .step-num {
-      flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%;
-      background: var(--gradient); display: flex; align-items: center; justify-content: center;
-      font-size: 18px; font-weight: 700; color: #fff;
-      box-shadow: 0 4px 20px rgba(102,126,234,0.3);
-    }
-    .step-content { padding-top: 6px; }
-    .step-content h4 { font-size: 18px; font-weight: 700; margin-bottom: 6px; letter-spacing: 0.3px; }
-    .step-content p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
-    .step-content code {
-      background: rgba(102,126,234,0.1); color: #a0a8f0;
-      padding: 2px 8px; border-radius: 4px; font-size: 13px;
+    /* ---- EXTENSION UI REPLICAS (scoped) ---- */
+    .ext-ui {
+      --glass: rgba(255,255,255,0.65); --glass-bd: rgba(255,255,255,0.7);
+      --shadow-card: 4px 4px 12px rgba(0,0,0,0.04), -4px -4px 12px rgba(255,255,255,0.6);
+      --radius-ui: 10px; --trans: 0.3s cubic-bezier(0.4,0,0.2,1);
+      font-family: -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; font-size:13px; color:#2c3e50;
     }
 
-    /* ========== Stats ========== */
-    #stats { padding: 80px 24px; }
-    .stats-grid {
-      max-width: 800px; margin: 0 auto;
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+    /* Popup */
+    .ext-ui.popup {
+      width:320px; border-radius:16px; overflow:hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.08);
+      background: radial-gradient(ellipse at 30% 0%, rgba(102,126,234,0.08) 0%, transparent 50%),
+                  radial-gradient(ellipse at 80% 100%, rgba(118,75,162,0.06) 0%, transparent 50%),
+                  linear-gradient(180deg, #f0f2ff 0%, #f8f9fc 40%, #f5f3f8 100%);
     }
-    .stat-item { text-align: center; }
-    .stat-value {
-      font-size: 40px; font-weight: 800;
-      background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .ext-ui .popup-hdr {
+      background: linear-gradient(135deg,#667eea 0%,#764ba2 50%,#5b3cc4 100%); color:#fff;
+      padding:16px; display:flex; align-items:center; justify-content:space-between;
+      position:relative; overflow:hidden;
     }
-    .stat-label { font-size: 14px; color: var(--text-muted); margin-top: 6px; }
+    .ext-ui .popup-hdr::after { content:''; position:absolute; bottom:0; left:10%; width:80%; height:2px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.5),transparent); }
+    .ext-ui .popup-hdr h4 { font-size:15px; font-weight:700; z-index:1; text-shadow:0 1px 4px rgba(0,0,0,0.15); }
+    .ext-ui .popup-hdr .ver { font-size:10px; opacity:0.7; z-index:1; background:rgba(255,255,255,0.15); padding:3px 10px; border-radius:12px; font-weight:500; }
+    .ext-ui .popup-section { padding:10px 14px; border-bottom:1px solid rgba(0,0,0,0.04); }
+    .ext-ui .popup-section:last-of-type { border-bottom:none; }
+    .ext-ui .sec-title { font-size:10px; font-weight:700; color:#8e8ea0; text-transform:uppercase; letter-spacing:1.2px; margin-bottom:8px; }
+    .ext-ui .stat-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:6px; }
+    .ext-ui .stat-card {
+      background:rgba(255,255,255,0.7); border-radius:var(--radius-ui); padding:10px 4px; text-align:center;
+      border:1px solid rgba(255,255,255,0.8); box-shadow:var(--shadow-card); transition:var(--trans); position:relative;
+    }
+    .ext-ui .stat-card:hover { transform:translateY(-2px); }
+    .ext-ui .stat-card .val { font-size:18px; font-weight:800; background:linear-gradient(135deg,#667eea,#764ba2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .ext-ui .stat-card .lbl { font-size:9px; color:#8e8ea0; margin-top:2px; }
+    .ext-ui .weekly-row { display:flex; justify-content:space-between; padding:9px 12px; background:rgba(255,255,255,0.5); border-radius:var(--radius-ui); border:1px solid rgba(255,255,255,0.6); }
+    .ext-ui .weekly-row span { font-size:12px; color:#5a5a72; }
+    .ext-ui .weekly-row strong { color:#667eea; }
+    .ext-ui .tgl-row { display:flex; align-items:center; justify-content:space-between; padding:7px 10px; margin-bottom:3px; background:rgba(255,255,255,0.45); border-radius:8px; border:1px solid rgba(255,255,255,0.5); transition:var(--trans); }
+    .ext-ui .tgl-row:hover { background:rgba(255,255,255,0.65); }
+    .ext-ui .tgl-row span { font-size:12px; font-weight:500; color:#3a3a52; }
+    .ext-ui .switch { position:relative; display:inline-block; width:40px; height:22px; }
+    .ext-ui .switch input { opacity:0; width:0; height:0; }
+    .ext-ui .slider { position:absolute; cursor:pointer; inset:0; background:#d4d4dc; border-radius:22px; transition:var(--trans); }
+    .ext-ui .slider::before { content:""; position:absolute; height:16px; width:16px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:var(--trans); box-shadow:0 2px 4px rgba(0,0,0,0.15); }
+    .ext-ui input:checked+.slider { background:linear-gradient(135deg,#667eea,#764ba2); }
+    .ext-ui input:checked+.slider::before { transform:translateX(18px); }
+    .ext-ui .popup-footer-row { display:flex; gap:8px; padding:10px 14px; background:rgba(255,255,255,0.3); }
+    .ext-ui .btn-sm { flex:1; padding:8px; border:none; border-radius:var(--radius-ui); font-size:12px; font-weight:600; cursor:pointer; transition:var(--trans); }
+    .ext-ui .btn-sm.primary { background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; box-shadow:0 4px 15px rgba(102,126,234,0.35); }
+    .ext-ui .btn-sm.primary:hover { transform:translateY(-1px); }
+    .ext-ui .btn-sm.secondary { background:rgba(255,255,255,0.7); color:#5a5a72; border:1px solid rgba(255,255,255,0.8); box-shadow:var(--shadow-card); }
 
-    /* ========== FAQ ========== */
-    #faq { padding: 60px 24px 120px; }
-    .faq-list { max-width: 750px; margin: 0 auto; }
-    .faq-item {
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 24px 28px; margin-bottom: 16px;
-      cursor: pointer; transition: all 0.3s ease;
+    /* Side Panel Dashboard */
+    .ext-ui.dashboard {
+      width:500px; border-radius:20px; padding:18px;
+      background: radial-gradient(ellipse at 10% 0%, rgba(102,126,234,0.05) 0%, transparent 55%),
+                  radial-gradient(ellipse at 90% 30%, rgba(118,75,162,0.04) 0%, transparent 55%),
+                  linear-gradient(180deg, #f0f2ff 0%, #f8f9fc 30%, #f5f3f8 100%);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.08);
     }
-    .faq-item:hover { border-color: rgba(102,126,234,0.2); }
-    .faq-item summary {
-      font-size: 16px; font-weight: 600; list-style: none;
-      display: flex; justify-content: space-between; align-items: center;
-      letter-spacing: 0.3px;
+    .ext-ui .dash-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:14px 16px; background:rgba(255,255,255,0.65); border:1px solid rgba(255,255,255,0.7); border-radius:14px; }
+    .ext-ui .dash-hdr h4 { font-size:16px; font-weight:700; background:linear-gradient(135deg,#667eea,#764ba2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .ext-ui .dash-hdr .dash-actions { display:flex; gap:6px; }
+    .ext-ui .dash-hdr .dash-btn { width:30px; height:30px; border-radius:10px; border:1px solid rgba(0,0,0,0.08); background:rgba(255,255,255,0.6); cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; transition:var(--trans); }
+    .ext-ui .overview-row { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px; margin-bottom:16px; }
+    .ext-ui .ov-card {
+      background:rgba(255,255,255,0.65); border:1px solid rgba(255,255,255,0.7); border-radius:14px;
+      padding:14px 11px; display:flex; align-items:center; gap:9px; transition:var(--trans); position:relative; overflow:hidden;
+      box-shadow: 4px 4px 12px rgba(0,0,0,0.03), -4px -4px 12px rgba(255,255,255,0.6);
     }
-    .faq-item summary::after {
-      content: '+'; font-size: 20px; color: var(--text-muted);
-      transition: transform 0.3s;
-    }
-    .faq-item[open] summary::after { content: '−'; transform: rotate(180deg); }
-    .faq-item .faq-answer {
-      margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border);
-      font-size: 14px; color: var(--text-muted); line-height: 1.8;
-    }
+    .ext-ui .ov-card::before { content:''; position:absolute; top:0; left:20%; width:60%; height:2px; border-radius:0 0 2px 2px; background:linear-gradient(90deg,transparent,#667eea,transparent); opacity:0.6; }
+    .ext-ui .ov-card.green::before { background:linear-gradient(90deg,transparent,#52c41a,transparent); }
+    .ext-ui .ov-card.orange::before { background:linear-gradient(90deg,transparent,#fa8c16,transparent); }
+    .ext-ui .ov-card.purple::before { background:linear-gradient(90deg,transparent,#722ed1,transparent); }
+    .ext-ui .ov-card:hover { transform:translateY(-3px); }
+    .ext-ui .ov-card .ov-icon { font-size:24px; width:38px; height:38px; display:flex; align-items:center; justify-content:center; border-radius:12px; background:rgba(102,126,234,0.07); flex-shrink:0; }
+    .ext-ui .ov-card.green .ov-icon { background:rgba(82,196,26,0.07); }
+    .ext-ui .ov-card.orange .ov-icon { background:rgba(250,140,22,0.07); }
+    .ext-ui .ov-card.purple .ov-icon { background:rgba(114,46,209,0.07); }
+    .ext-ui .ov-card .ov-val { font-size:20px; font-weight:800; background:linear-gradient(135deg,#667eea,#764ba2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .ext-ui .ov-card.green .ov-val { background:linear-gradient(135deg,#52c41a,#389e0d); -webkit-background-clip:text; background-clip:text; }
+    .ext-ui .ov-card.orange .ov-val { background:linear-gradient(135deg,#fa8c16,#d46b08); -webkit-background-clip:text; background-clip:text; }
+    .ext-ui .ov-card.purple .ov-val { background:linear-gradient(135deg,#722ed1,#531dab); -webkit-background-clip:text; background-clip:text; }
+    .ext-ui .ov-card .ov-lbl { font-size:11px; color:#8e8ea0; }
+    .ext-ui .chart-box { background:rgba(255,255,255,0.65); border:1px solid rgba(255,255,255,0.7); border-radius:14px; padding:14px; margin-bottom:14px; }
+    .ext-ui .chart-box h5 { font-size:13px; color:#3a3a52; margin-bottom:10px; }
+    .ext-ui .chart-bars { display:flex; align-items:flex-end; gap:5px; height:60px; }
+    .ext-ui .chart-bar { flex:1; border-radius:3px 3px 0 0; transition:var(--trans); cursor:pointer; }
+    .ext-ui .chart-bar:hover { opacity:0.8; transform:scaleY(1.05); }
+    .ext-ui .tabs-row { display:flex; gap:4px; margin-bottom:12px; padding:4px; background:rgba(0,0,0,0.03); border-radius:12px; display:inline-flex; }
+    .ext-ui .tab-btn { padding:7px 16px; border:none; background:transparent; cursor:pointer; font-size:12px; font-weight:500; border-radius:9px; color:#8e8ea0; transition:var(--trans); }
+    .ext-ui .tab-btn.active { background:rgba(255,255,255,0.8); color:#667eea; font-weight:600; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+    .ext-ui .list-box { background:rgba(255,255,255,0.65); border:1px solid rgba(255,255,255,0.7); border-radius:14px; padding:10px 14px; }
+    .ext-ui .list-row { display:flex; align-items:center; justify-content:space-between; padding:9px 10px; margin-bottom:3px; border-radius:10px; background:rgba(255,255,255,0.4); border:1px solid transparent; transition:var(--trans); }
+    .ext-ui .list-row:hover { background:rgba(255,255,255,0.75); border-color:rgba(102,126,234,0.12); transform:translateX(2px); }
+    .ext-ui .list-row .title { font-weight:600; font-size:12px; color:#2c3e50; }
+    .ext-ui .list-row .sub { font-size:11px; color:#8e8ea0; }
+    .ext-ui .list-row .badge-status { font-size:10px; padding:2px 10px; border-radius:20px; font-weight:600; }
+    .ext-ui .badge-status.sent { background:rgba(0,0,0,0.04); color:#666; }
+    .ext-ui .badge-status.replied { background:rgba(24,144,255,0.1); color:#1677cc; }
+    .ext-ui .badge-status.interview { background:rgba(82,196,26,0.1); color:#389e0d; }
 
-    /* ========== CTA ========== */
-    #cta {
-      padding: 80px 24px 100px; text-align: center;
+    /* Settings Page */
+    .ext-ui.settings-page {
+      width:580px; border-radius:20px; overflow:hidden; display:flex;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.08);
+      background: radial-gradient(ellipse at 0% 0%, rgba(102,126,234,0.04) 0%, transparent 50%),
+                  radial-gradient(ellipse at 100% 80%, rgba(118,75,162,0.03) 0%, transparent 50%),
+                  linear-gradient(180deg, #f0f2ff 0%, #f8f9fc 40%, #f5f3f8 100%);
     }
-    .cta-box {
-      max-width: 700px; margin: 0 auto;
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 24px; padding: 60px 40px;
-      position: relative; overflow: hidden;
+    .ext-ui .set-sidebar { width:150px; background:rgba(255,255,255,0.55); border-right:1px solid rgba(255,255,255,0.6); padding:20px 0; flex-shrink:0; }
+    .ext-ui .set-sidebar h5 { padding:0 14px 14px; font-size:14px; font-weight:700; background:linear-gradient(135deg,#667eea,#764ba2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .ext-ui .set-nav { padding:5px 10px; margin:0 6px 2px; border-radius:8px; font-size:12px; font-weight:500; color:#6b6b80; border-left:3px solid transparent; transition:var(--trans); cursor:pointer; }
+    .ext-ui .set-nav.active { background:rgba(102,126,234,0.08); color:#667eea; font-weight:600; border-left:3px solid; border-image:linear-gradient(180deg,#667eea,#764ba2)1; }
+    .ext-ui .set-content { flex:1; padding:20px; }
+    .ext-ui .set-content h4 { font-size:15px; font-weight:700; margin-bottom:4px; color:#2c3e50; }
+    .ext-ui .set-content .help { font-size:11px; color:#8e8ea0; margin-bottom:12px; }
+    .ext-ui .form-grp { margin-bottom:12px; }
+    .ext-ui .form-grp label { display:block; font-size:12px; font-weight:600; color:#3a3a52; margin-bottom:4px; }
+    .ext-ui .form-grp input, .ext-ui .form-grp select, .ext-ui .form-grp textarea {
+      width:100%; padding:8px 10px; border:1px solid rgba(0,0,0,0.08); border-radius:8px; font-size:12px;
+      font-family:inherit; background:rgba(255,255,255,0.55); transition:var(--trans); outline:none; color:#2c3e50;
     }
-    .cta-box::before {
-      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-      background: radial-gradient(circle, rgba(102,126,234,0.06) 0%, transparent 60%);
-    }
-    .cta-box > * { position: relative; z-index: 1; }
-    .cta-box h2 { font-size: 32px; font-weight: 800; margin-bottom: 14px; }
-    .cta-box p { color: var(--text-muted); margin-bottom: 32px; font-size: 16px; }
+    .ext-ui .form-grp input:focus, .ext-ui .form-grp select:focus, .ext-ui .form-grp textarea:focus { border-color:#667eea; box-shadow:0 0 0 3px rgba(102,126,234,0.06); }
+    .ext-ui .form-grp textarea { resize:vertical; min-height:50px; }
+    .ext-ui .set-save { padding:8px 20px; background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; border:none; border-radius:10px; font-size:12px; font-weight:600; cursor:pointer; box-shadow:0 4px 15px rgba(102,126,234,0.3); transition:var(--trans); }
+    .ext-ui .set-save:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(102,126,234,0.4); }
 
-    /* ========== Footer ========== */
-    footer {
-      border-top: 1px solid var(--border); padding: 40px 24px;
-      text-align: center;
+    /* Chat panel */
+    .ext-ui.chat-panel {
+      width:380px; border-radius:14px; overflow:hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.82); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.7);
     }
-    .footer-inner { max-width: var(--max-w); margin: 0 auto; }
-    .footer-links { display: flex; justify-content: center; gap: 32px; margin-bottom: 20px; flex-wrap: wrap; }
-    .footer-links a { color: var(--text-muted); text-decoration: none; font-size: 14px; transition: color 0.2s; }
-    .footer-links a:hover { color: #fff; }
-    .footer-copy { font-size: 13px; color: var(--text-muted); }
+    .ext-ui .chat-hdr { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:linear-gradient(135deg,#667eea,#764ba2,#5b3cc4); color:#fff; font-size:13px; font-weight:700; }
+    .ext-ui .chat-hdr .ch-btns { display:flex; gap:3px; }
+    .ext-ui .chat-hdr .ch-btns span { width:22px; height:22px; border-radius:50%; border:1px solid rgba(255,255,255,0.3); display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer; }
+    .ext-ui .chat-body { padding:14px; min-height:200px; }
+    .ext-ui .chat-ctx { padding:8px 10px; border-radius:8px; background:rgba(102,126,234,0.04); border-bottom:1px solid rgba(0,0,0,0.04); margin-bottom:10px; font-size:11px; display:flex; justify-content:space-between; }
+    .ext-ui .chat-ctx .ctx-name { font-weight:600; color:#2c3e50; }
+    .ext-ui .chat-bubble { padding:8px 12px; border-radius:10px; font-size:11px; line-height:1.5; margin-bottom:8px; border-left:3px solid; }
+    .ext-ui .chat-bubble.hr { background:rgba(24,144,255,0.06); border-color:#1890ff; }
+    .ext-ui .chat-bubble.ai { background:rgba(114,46,209,0.06); border-color:#722ed1; }
+    .ext-ui .chat-bubble .tag { font-size:9px; font-weight:700; margin-bottom:2px; }
+    .ext-ui .chat-bubble.hr .tag { color:#1677cc; }
+    .ext-ui .chat-bubble.ai .tag { color:#722ed1; }
+    .ext-ui .chat-input-area { padding:10px 14px; border-top:1px solid rgba(0,0,0,0.04); background:rgba(255,255,255,0.4); }
+    .ext-ui .chat-input-area textarea { width:100%; height:40px; padding:8px 10px; border:1px solid rgba(0,0,0,0.08); border-radius:10px; font-size:11px; font-family:inherit; resize:none; transition:var(--trans); }
+    .ext-ui .chat-input-area textarea:focus { border-color:#667eea; box-shadow:0 0 0 3px rgba(102,126,234,0.06); }
+    .ext-ui .chat-btns { display:flex; gap:5px; margin-top:6px; flex-wrap:wrap; }
+    .ext-ui .chat-btn { padding:5px 10px; border-radius:8px; font-size:10px; font-weight:600; cursor:pointer; border:1px solid rgba(0,0,0,0.06); background:rgba(255,255,255,0.6); color:#5a5a72; transition:var(--trans); }
+    .ext-ui .chat-btn.primary { background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; border:none; }
+    .ext-ui .chat-btn:hover { transform:translateY(-1px); }
 
-    /* ========== Responsive ========== */
-    @media (max-width: 900px) {
-      .hero-inner { grid-template-columns: 1fr; gap: 48px; }
-      .hero-preview { order: -1; }
-      .hero h1 { font-size: 32px; }
-      .features-grid { grid-template-columns: repeat(2, 1fr); }
-      .showcase-grid { grid-template-columns: 1fr; }
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .nav-links { display: none; }
-      .float-card { display: none; }
+    @media (max-width:900px) {
+      .hero-inner { grid-template-columns:1fr; gap:40px; }
+      .hero-mockup { order:-1; }
+      .features-grid { grid-template-columns:repeat(2,1fr); }
+      .showcase-row, .showcase-row.reverse { flex-direction:column; }
+      .showcase-label p { max-width:100%; }
+      .hero h1 { font-size:32px; }
+      .nav-links { display:none; }
     }
-    @media (max-width: 600px) {
-      .features-grid { grid-template-columns: 1fr; }
-      .hero-btns { flex-direction: column; }
-    }
+    @media (max-width:600px) { .features-grid { grid-template-columns:1fr; } .hero-btns { flex-direction:column; } }
   </style>
 </head>
 <body>
 
-  <!-- Animated background orbs -->
-  <div class="bg-orb bg-orb-1"></div>
-  <div class="bg-orb bg-orb-2"></div>
-  <div class="bg-orb bg-orb-3"></div>
-  <div class="bg-orb bg-orb-4"></div>
+<div class="bg-orb bg-orb-1"></div><div class="bg-orb bg-orb-2"></div><div class="bg-orb bg-orb-3"></div>
 
-  <!-- ==================== NAV ==================== -->
-  <nav class="nav">
-    <div class="nav-inner">
-      <a href="#" class="nav-logo">
-        <span class="icon">✦</span> BOSS直聘助手
-      </a>
-      <ul class="nav-links">
-        <li><a href="#features">功能</a></li>
-        <li><a href="#showcase">界面</a></li>
-        <li><a href="#howto">安装</a></li>
-        <li><a href="#faq">FAQ</a></li>
-      </ul>
-      <a href="https://github.com/ConsoleSun/boss-zhipin-helper" class="nav-cta" target="_blank">⭐ GitHub</a>
-    </div>
-  </nav>
+<!-- ====== NAV ====== -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo"><span class="icon">✦</span> BOSS直聘助手</a>
+    <ul class="nav-links">
+      <li><a href="#features">功能</a></li><li><a href="#showcase">界面</a></li><li><a href="#howto">安装</a></li><li><a href="#faq">FAQ</a></li>
+    </ul>
+    <a href="https://github.com/ConsoleSun/boss-zhipin-helper" class="nav-cta" target="_blank">⭐ GitHub</a>
+  </div>
+</nav>
 
-  <!-- ==================== HERO ==================== -->
-  <section class="hero" id="hero">
-    <div class="hero-inner">
-      <div class="hero-text">
-        <div class="hero-badge">
-          <span class="dot"></span> Chrome Extension · Manifest V3
-        </div>
-        <h1>AI 驱动的<br><span class="gradient-text">求职效率工具</span></h1>
-        <p>专为 BOSS直聘 & 智联招聘打造。自动抓取JD、AI智能回复、简历解析、数据统计——让每一次沟通都精准高效。</p>
-        <div class="hero-btns">
-          <a href="https://github.com/ConsoleSun/boss-zhipin-helper" class="btn btn-primary" target="_blank">
-            ⬇ 免费获取
-          </a>
-          <a href="#features" class="btn btn-outline">
-            了解更多 ↓
-          </a>
-        </div>
-      </div>
-
-      <div class="hero-preview">
-        <div class="preview-card">
-          <div class="preview-header">
-            <div class="preview-dots"><span></span><span></span><span></span></div>
-            <span class="preview-title">🤖 AI 对话助手</span>
-          </div>
-          <div class="preview-content">
-            <div class="preview-line medium"></div>
-            <div class="preview-line short"></div>
-            <div class="preview-bubble ai">
-              <div style="font-weight:700;font-size:10px;margin-bottom:4px;color:#b0a0e0;">📥 AI回复</div>
-              您好！我对贵公司的前端开发岗位非常感兴趣。我有 React、TypeScript 等技能，3年经验与岗位JD高度匹配...
-            </div>
-            <span class="preview-badge">✅ 专业模式</span>
-          </div>
-        </div>
-
-        <div class="float-card float-card-1">
-          📊 今日投递 <strong style="color:#52c41a;">12</strong> · 回复率 <strong style="color:#1890ff;">38%</strong>
-        </div>
-        <div class="float-card float-card-2">
-          🔍 已保存 <strong style="color:#faad14;">23</strong> 个职位
-        </div>
+<!-- ====== HERO ====== -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-badge"><span class="dot"></span> Chrome Extension · Manifest V3</div>
+      <h1>AI 驱动的<br><span class="gradient-text">求职效率工具</span></h1>
+      <p>专为 BOSS直聘 & 智联招聘打造。自动抓取JD、AI智能回复、简历解析、数据统计——让每一次沟通都精准高效。</p>
+      <div class="hero-btns">
+        <a href="https://github.com/ConsoleSun/boss-zhipin-helper" class="btn btn-primary" target="_blank">⬇ 免费获取</a>
+        <a href="#features" class="btn btn-outline">了解更多 ↓</a>
       </div>
     </div>
-  </section>
-
-  <!-- ==================== FEATURES ==================== -->
-  <section id="features">
-    <div class="section-header">
-      <span class="section-tag">核心功能</span>
-      <h2>八大功能，全方位赋能求职</h2>
-      <p>从 JD 抓取到 AI 回复，从简历解析到数据分析，一套扩展覆盖完整求职流程</p>
-    </div>
-
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon purple">👋</div>
-        <h3>AI 打招呼语</h3>
-        <p>浏览职位时自动抓取 JD，一键生成个性化打招呼语，精准匹配岗位要求</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon green">💬</div>
-        <h3>AI 智能回复</h3>
-        <p>聊天页面浮动面板，粘贴 HR 消息自动生成回复，专业/拟人双模式自由切换</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon orange">📄</div>
-        <h3>PDF 简历解析</h3>
-        <p>上传 PDF 简历，AI 自动提取姓名、技能、工作经历等结构化信息，生成更精准回复</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon blue">📊</div>
-        <h3>数据看板</h3>
-        <p>投递记录、沟通统计、趋势图表、面试转化率——全历史数据可视化，支持 JSON 导出</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon pink">🏷️</div>
-        <h3>已投递标记</h3>
-        <p>职位列表自动标记「已沟通」徽章，避免重复投递，支持无限滚动动态加载</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon cyan">🖱️</div>
-        <h3>右键发送</h3>
-        <p>聊天页面右键 HR 消息直接发送到 AI 助手，一键生成回复，无需复制粘贴</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon purple">📋</div>
-        <h3>岗位管理</h3>
-        <p>自动保存浏览过的职位，支持置顶、搜索、删除，AI 对话历史按岗位关联</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon green">🔐</div>
-        <h3>隐私优先</h3>
-        <p>全部数据存储在浏览器本地（IndexedDB + chrome.storage），不上传任何服务器</p>
+    <div class="hero-mockup">
+      <div class="mockup-card">
+        <div class="mockup-hdr"><div class="mockup-dots"><span></span><span></span><span></span></div><span>🤖 AI 对话助手</span></div>
+        <div class="mockup-line m"></div><div class="mockup-line s"></div>
+        <div class="mockup-bubble"><div style="font-weight:700;font-size:10px;margin-bottom:4px;color:#b0a0e0;">📥 AI回复</div>您好！我对贵公司的前端开发岗位非常感兴趣。我有 React、TypeScript 等技能，3年经验与岗位JD高度匹配，期待进一步沟通！</div>
+        <span class="mockup-tag">✅ 专业模式</span>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- ==================== SHOWCASE ==================== -->
-  <section id="showcase">
-    <div class="section-header">
-      <span class="section-tag">界面展示</span>
-      <h2>精心设计的交互体验</h2>
-      <p>毛玻璃浮动面板 · Shadow DOM 样式隔离 · 拖拽缩放 · 渐变视觉</p>
+<!-- ====== FEATURES ====== -->
+<section id="features">
+  <div class="section-header"><span class="section-tag">核心功能</span><h2>八大功能，全方位赋能求职</h2><p>从 JD 抓取到 AI 回复，从简历解析到数据分析，一套扩展覆盖完整求职流程</p></div>
+  <div class="features-grid">
+    <div class="feat-card"><div class="icon">👋</div><h3>AI 打招呼语</h3><p>浏览职位时自动抓取 JD，一键生成个性化打招呼语</p></div>
+    <div class="feat-card"><div class="icon">💬</div><h3>AI 智能回复</h3><p>聊天页面浮动面板，粘贴 HR 消息自动生成回复，专业/拟人双模式切换</p></div>
+    <div class="feat-card"><div class="icon">📄</div><h3>PDF 简历解析</h3><p>上传 PDF，AI 自动提取姓名、技能、经历等结构化信息</p></div>
+    <div class="feat-card"><div class="icon">📊</div><h3>数据看板</h3><p>投递记录、沟通统计、趋势图表、面试转化率，支持 JSON 导出</p></div>
+    <div class="feat-card"><div class="icon">🏷️</div><h3>已投递标记</h3><p>职位列表自动标记「已沟通」徽章，避免重复投递</p></div>
+    <div class="feat-card"><div class="icon">🖱️</div><h3>右键发送</h3><p>聊天页面右键 HR 消息直接发送到 AI 助手</p></div>
+    <div class="feat-card"><div class="icon">📋</div><h3>岗位管理</h3><p>自动保存浏览过的职位，支持置顶、搜索、删除，AI 历史按岗位关联</p></div>
+    <div class="feat-card"><div class="icon">🔐</div><h3>隐私优先</h3><p>所有数据存本地（IndexedDB + chrome.storage），不上传任何服务器</p></div>
+  </div>
+</section>
+
+<!-- ====== SHOWCASE — Real Extension UIs ====== -->
+<section id="showcase">
+  <div class="section-header"><span class="section-tag">界面展示</span><h2>真实界面预览</h2><p>以下 UI 元素直接来自扩展源代码，毛玻璃 + 渐变 + 微交互</p></div>
+
+  <!-- #1 Popup -->
+  <div class="showcase-row">
+    <div class="showcase-label"><span class="tag">Popup 弹窗</span><h3>快速概览 & 开关</h3><p>今日投递/消息/回复率/面试数一目了然，功能开关即时控制。点击按钮可直接打开数据面板或设置页。</p></div>
+    <div class="showcase-device">
+      <div class="ext-ui popup">
+        <div class="popup-hdr"><h4>✦ BOSS直聘助手</h4><span class="ver">v1.0</span></div>
+        <div class="popup-section">
+          <div class="sec-title">📊 今日数据</div>
+          <div class="stat-grid">
+            <div class="stat-card"><div class="val">12</div><div class="lbl">投递</div></div>
+            <div class="stat-card"><div class="val">8</div><div class="lbl">消息</div></div>
+            <div class="stat-card"><div class="val">38%</div><div class="lbl">回复率</div></div>
+            <div class="stat-card"><div class="val">3</div><div class="lbl">面试</div></div>
+          </div>
+        </div>
+        <div class="popup-section">
+          <div class="sec-title">📅 本周累计</div>
+          <div class="weekly-row"><span>本周投递 <strong>28</strong> 次</span><span>总计 <strong>156</strong> 次</span></div>
+        </div>
+        <div class="popup-section">
+          <div class="sec-title">⚡ 功能设置</div>
+          <div class="tgl-row"><span>💬 快捷回复</span><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div>
+          <div class="tgl-row"><span>🏷️ 已投递标记</span><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div>
+          <div class="tgl-row"><span>🤖 AI 分类</span><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div>
+        </div>
+        <div class="popup-footer-row"><button class="btn-sm primary">📊 完整面板</button><button class="btn-sm secondary">⚙️ 设置</button></div>
+      </div>
     </div>
+  </div>
 
-    <div class="showcase-inner">
-      <div class="showcase-grid">
-        <div class="showcase-card">
-          <div class="showcase-img" style="background:linear-gradient(135deg,rgba(102,126,234,0.1),rgba(118,75,162,0.1));">💬</div>
-          <div class="showcase-body">
-            <h3>AI 对话浮动面板</h3>
-            <p>玻璃拟态风格面板，支持岗位列表 / 聊天双模式切换，拖拽移动、缩放调整大小。集成 DeepSeek & MiMo 2.5 双模型。</p>
-          </div>
+  <!-- #2 AI Chat Panel -->
+  <div class="showcase-row reverse">
+    <div class="showcase-label"><span class="tag">AI 对话面板</span><h3>浮动智能助手</h3><p>Shadow DOM 隔离样式，拖拽移动、可缩放。支持岗位列表/聊天双模式，一键填入聊天框，集成 DeepSeek & MiMo 2.5。</p></div>
+    <div class="showcase-device">
+      <div class="ext-ui chat-panel">
+        <div class="chat-hdr">🤖 AI 对话助手 <div class="ch-btns"><span>−</span><span>×</span></div></div>
+        <div class="chat-body">
+          <div class="chat-ctx"><span class="ctx-name">📋 前端开发工程师 @ 某某科技</span></div>
+          <div class="chat-bubble hr"><div class="tag">📥 HR消息 · 14:32</div>您好，看到您的简历，想了解一下您对薪资的期望是多少？</div>
+          <div class="chat-bubble ai"><div class="tag">🤖 AI回复</div>您好！基于我的经验和市场行情，期望薪资在 15K-20K，具体可以详谈。我对贵公司的技术栈非常感兴趣，期待进一步了解团队和项目情况。</div>
         </div>
-
-        <div class="showcase-card">
-          <div class="showcase-img" style="background:linear-gradient(135deg,rgba(24,144,255,0.1),rgba(0,242,254,0.1));">📊</div>
-          <div class="showcase-body">
-            <h3>数据统计看板</h3>
-            <p>Side Panel 仪表盘，Canvas 绘制投递趋势图，投递/沟通记录双 Tab 切换，支持状态筛选和关键词搜索。</p>
-          </div>
-        </div>
-
-        <div class="showcase-card">
-          <div class="showcase-img" style="background:linear-gradient(135deg,rgba(82,196,26,0.1),rgba(67,233,123,0.1));">⚙️</div>
-          <div class="showcase-body">
-            <h3>设置管理页</h3>
-            <p>个人信息配置、API Key 管理、PDF 简历上传解析、数据导入导出、存储空间监控，一站式管理。</p>
-          </div>
-        </div>
-
-        <div class="showcase-card">
-          <div class="showcase-img" style="background:linear-gradient(135deg,rgba(250,173,20,0.1),rgba(245,87,108,0.1));">🏷️</div>
-          <div class="showcase-body">
-            <h3>已投递徽章 + 快速统计</h3>
-            <p>职位列表页自动标记已沟通岗位，Popup 弹窗展示今日投递/消息/回复率/面试数，功能开关一键控制。</p>
+        <div class="chat-input-area">
+          <textarea placeholder="粘贴HR消息，Ctrl+Enter发送...">您好，想了解一下您对薪资的期望是多少？</textarea>
+          <div class="chat-btns">
+            <button class="chat-btn primary">🤖 发送给AI</button><button class="chat-btn">🔄 重新生成</button><button class="chat-btn">👋 打招呼</button><button class="chat-btn">✏️ 填入聊天框</button>
           </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ==================== HOW TO USE ==================== -->
-  <section id="howto">
-    <div class="section-header">
-      <span class="section-tag">快速上手</span>
-      <h2>三步开始使用</h2>
-    </div>
-
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-content">
-          <h4>加载扩展</h4>
-          <p>下载代码后，打开 <code>chrome://extensions</code>，开启「开发者模式」，点击「加载已解压的扩展程序」选择项目文件夹</p>
+  <!-- #3 Dashboard -->
+  <div class="showcase-row">
+    <div class="showcase-label"><span class="tag">数据面板</span><h3>全历史分析</h3><p>Side Panel 仪表盘，Canvas 投递趋势图，投递/沟通记录 Tab 切换，状态筛选 + 关键词搜索。</p></div>
+    <div class="showcase-device">
+      <div class="ext-ui dashboard">
+        <div class="dash-hdr"><h4>📊 求职数据分析</h4><div class="dash-actions"><span class="dash-btn">🔄</span><span class="dash-btn" style="font-size:10px;width:auto;padding:0 10px;border-radius:8px;">📥 导出</span></div></div>
+        <div class="overview-row">
+          <div class="ov-card"><div class="ov-icon">📮</div><div><div class="ov-val">156</div><div class="ov-lbl">总投递数</div></div></div>
+          <div class="ov-card green"><div class="ov-icon">💬</div><div><div class="ov-val">38%</div><div class="ov-lbl">回复率</div></div></div>
+          <div class="ov-card orange"><div class="ov-icon">📅</div><div><div class="ov-val">12</div><div class="ov-lbl">面试邀请</div></div></div>
+          <div class="ov-card purple"><div class="ov-icon">📈</div><div><div class="ov-val">7.7%</div><div class="ov-lbl">面试转化率</div></div></div>
+        </div>
+        <div class="chart-box"><h5>📈 投递趋势（近30天）</h5>
+          <div class="chart-bars">
+            <div class="chart-bar" style="height:30%;background:linear-gradient(180deg,#1890ff,#69c0ff)"></div>
+            <div class="chart-bar" style="height:45%;background:linear-gradient(180deg,#1890ff,#69c0ff)"></div>
+            <div class="chart-bar" style="height:20%;background:linear-gradient(180deg,#1890ff,#69c0ff)"></div>
+            <div class="chart-bar" style="height:60%;background:linear-gradient(180deg,#1890ff,#69c0ff)"></div>
+            <div class="chart-bar" style="height:35%;background:linear-gradient(180deg,#1890ff,#69c0ff)"></div>
+            <div class="chart-bar" style="height:50%;background:linear-gradient(180deg,#1890ff,#69c0ff)"></div>
+            <div class="chart-bar" style="height:25%;background:linear-gradient(180deg,#1890ff,#69c0ff)"></div>
+            <div class="chart-bar" style="height:70%;background:linear-gradient(180deg,#1890ff,#69c0ff)"></div>
+            <div class="chart-bar" style="height:40%;background:linear-gradient(180deg,#1890ff,#69c0ff)"></div>
+            <div class="chart-bar" style="height:55%;background:linear-gradient(180deg,#1890ff,#69c0ff)"></div>
+            <div class="chart-bar" style="height:15%;background:linear-gradient(180deg,#1890ff,#69c0ff)"></div>
+            <div class="chart-bar" style="height:45%;background:linear-gradient(180deg,#1890ff,#69c0ff)"></div>
+            <div class="chart-bar" style="height:30%;background:linear-gradient(180deg,#1890ff,#69c0ff)"></div>
+            <div class="chart-bar" style="height:80%;background:linear-gradient(180deg,#667eea,#764ba2)"></div>
+            <div class="chart-bar" style="height:50%;background:linear-gradient(180deg,#1890ff,#69c0ff)"></div>
+          </div>
+        </div>
+        <div class="tabs-row"><button class="tab-btn active">📋 投递记录</button><button class="tab-btn">💬 沟通记录</button></div>
+        <div class="list-box">
+          <div class="list-row"><div><div class="title">前端开发工程师</div><div class="sub">某某科技有限公司 · 15K-25K</div></div><span class="badge-status replied">已回复</span></div>
+          <div class="list-row"><div><div class="title">全栈工程师</div><div class="sub">ABC 信息技术 · 20K-30K</div></div><span class="badge-status interview">面试中</span></div>
+          <div class="list-row"><div><div class="title">Java 后端开发</div><div class="sub">数据科技集团 · 18K-28K</div></div><span class="badge-status sent">已投递</span></div>
         </div>
       </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-content">
-          <h4>配置 API Key</h4>
-          <p>点击扩展图标 → 设置，填写个人信息（技能/经验），选择 AI 模型（DeepSeek 或 MiMo 2.5）并填入 API Key</p>
+    </div>
+  </div>
+
+  <!-- #4 Settings -->
+  <div class="showcase-row reverse">
+    <div class="showcase-label"><span class="tag">设置页面</span><h3>一站式配置</h3><p>个人信息、AI 模型选择、API Key 管理、PDF 简历上传解析、数据导入导出、存储监控。</p></div>
+    <div class="showcase-device">
+      <div class="ext-ui settings-page">
+        <div class="set-sidebar">
+          <h5>✦ 设置</h5>
+          <div class="set-nav active">👤 个人信息</div>
+          <div class="set-nav">💾 数据管理</div>
+          <div class="set-nav">ℹ️ 关于</div>
+        </div>
+        <div class="set-content">
+          <h4>👤 个人信息设置</h4>
+          <p class="help">可手动填写，上传简历后也可从识别结果中获取。</p>
+          <div class="form-grp"><label>姓名/昵称</label><input type="text" placeholder="例如：张三" value="张伟" readonly></div>
+          <div class="form-grp"><label>技能/经验</label><textarea rows="2" readonly>React、TypeScript、Node.js、Chrome Extension MV3</textarea></div>
+          <div class="form-grp"><label>期望薪资</label><input type="text" placeholder="例如：15K-20K" value="15K-20K" readonly></div>
+          <div class="form-grp"><label>AI 模型</label><select><option>DeepSeek</option><option>MiMo 2.5</option></select></div>
+          <div class="form-grp"><label>DeepSeek API Key</label><input type="password" value="sk-••••••••" readonly></div>
+          <button class="set-save">💾 保存设置</button>
         </div>
       </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-content">
-          <h4>开始使用</h4>
-          <p>打开 BOSS直聘或智联招聘，浏览职位自动保存 JD，聊天页右侧出现 AI 助手面板，粘贴 HR 消息即刻生成回复</p>
-        </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== HOW TO USE ====== -->
+<section id="howto" style="padding:60px 24px 100px;">
+  <div class="section-header"><span class="section-tag">快速上手</span><h2>三步开始使用</h2></div>
+  <div style="max-width:750px;margin:0 auto;">
+    <div style="display:flex;gap:20px;margin-bottom:30px;position:relative;">
+      <div style="flex-shrink:0;width:40px;height:40px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;box-shadow:0 4px 20px rgba(102,126,234,0.3);">1</div>
+      <div><h4 style="font-size:17px;font-weight:700;margin-bottom:4px;">加载扩展</h4><p style="color:var(--text-muted);font-size:14px;">下载代码，打开 <code style="background:rgba(102,126,234,0.1);color:#a0a8f0;padding:2px 8px;border-radius:4px;">chrome://extensions</code>，开启「开发者模式」，点击「加载已解压的扩展程序」</p></div>
+    </div>
+    <div style="display:flex;gap:20px;margin-bottom:30px;">
+      <div style="flex-shrink:0;width:40px;height:40px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;box-shadow:0 4px 20px rgba(102,126,234,0.3);">2</div>
+      <div><h4 style="font-size:17px;font-weight:700;margin-bottom:4px;">配置 API Key</h4><p style="color:var(--text-muted);font-size:14px;">点击扩展图标 → 设置，填写个人信息，选择 AI 模型（DeepSeek 或 MiMo 2.5）并填入 API Key</p></div>
+    </div>
+    <div style="display:flex;gap:20px;">
+      <div style="flex-shrink:0;width:40px;height:40px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;box-shadow:0 4px 20px rgba(102,126,234,0.3);">3</div>
+      <div><h4 style="font-size:17px;font-weight:700;margin-bottom:4px;">开始使用</h4><p style="color:var(--text-muted);font-size:14px;">打开 BOSS直聘或智联招聘，浏览职位自动保存 JD，聊天页右侧出现 AI 助手面板</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== FAQ ====== -->
+<section id="faq" style="padding:40px 24px 100px;">
+  <div class="section-header"><span class="section-tag">FAQ</span><h2>常见问题</h2></div>
+  <div style="max-width:750px;margin:0 auto;">
+    <details style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:22px 26px;margin-bottom:14px;cursor:pointer;transition:all .3s;" open>
+      <summary style="font-size:15px;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center;">支持哪些招聘平台？<span style="font-size:18px;color:var(--text-muted);">−</span></summary>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:14px;color:var(--text-muted);line-height:1.8;">支持 <strong>BOSS直聘</strong>（boss.cn / zhipin.com）和 <strong>智联招聘</strong>（zhaopin.com / zhaopin.cn）。选择器系统支持多级回退，网站改版时大部分功能可自愈。</div>
+    </details>
+    <details style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:22px 26px;margin-bottom:14px;cursor:pointer;transition:all .3s;">
+      <summary style="font-size:15px;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center;">MiMo 和 DeepSeek 如何选择？<span style="font-size:18px;color:var(--text-muted);">+</span></summary>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:14px;color:var(--text-muted);line-height:1.8;"><strong>DeepSeek</strong>：响应快速，稳定性好，推荐日常使用。<br><strong>MiMo 2.5</strong>：推理模型，回复质量更高但耗时较长（45s超时）。扩展已对 MiMo 的 reasoning_content 字段做兼容处理。</div>
+    </details>
+    <details style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:22px 26px;margin-bottom:14px;cursor:pointer;transition:all .3s;">
+      <summary style="font-size:15px;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center;">我的数据安全吗？<span style="font-size:18px;color:var(--text-muted);">+</span></summary>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:14px;color:var(--text-muted);line-height:1.8;">绝对安全。所有数据存储在浏览器本地（IndexedDB + chrome.storage.local），<strong>不上传任何服务器</strong>。AI API 调用仅发送当前对话上下文。</div>
+    </details>
+    <details style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:22px 26px;margin-bottom:14px;cursor:pointer;transition:all .3s;">
+      <summary style="font-size:15px;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center;">为什么点击按钮没有反应？<span style="font-size:18px;color:var(--text-muted);">+</span></summary>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:14px;color:var(--text-muted);line-height:1.8;">请检查：1) 是否已配置 API Key；2) 当前页面是否为职位详情页或聊天页；3) 点击右下角 🐛 调试按钮查看日志；4) F12 控制台搜索 [BossHelper] 确认扩展已加载。</div>
+    </details>
+  </div>
+</section>
+
+<!-- ====== CTA ====== -->
+<section style="padding:60px 24px 80px;text-align:center;">
+  <div style="max-width:650px;margin:0 auto;background:var(--bg-card);border:1px solid var(--border);border-radius:24px;padding:56px 36px;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(102,126,234,0.05)0%,transparent 60%);"></div>
+    <div style="position:relative;z-index:1;">
+      <h2 style="font-size:30px;font-weight:800;margin-bottom:12px;">准备好提升求职效率了吗？</h2>
+      <p style="color:var(--text-muted);margin-bottom:28px;font-size:15px;">免费开源，MIT 协议，GitHub & Gitee 同步更新</p>
+      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+        <a href="https://github.com/ConsoleSun/boss-zhipin-helper" class="btn btn-primary" target="_blank">⭐ GitHub 获取</a>
+        <a href="https://gitee.com/sunjunshuai/boss-zhipin-helper" class="btn btn-outline" target="_blank">Gitee 镜像</a>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- ==================== STATS ==================== -->
-  <section id="stats">
-    <div class="stats-grid">
-      <div class="stat-item">
-        <div class="stat-value" data-count="2">2</div>
-        <div class="stat-label">AI 模型支持</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value" data-count="2">2</div>
-        <div class="stat-label">招聘平台覆盖</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value" data-count="8">8</div>
-        <div class="stat-label">核心功能模块</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value" data-count="100">100%</div>
-        <div class="stat-label">本地数据存储</div>
-      </div>
-    </div>
-  </section>
+<!-- ====== FOOTER ====== -->
+<footer style="border-top:1px solid var(--border);padding:36px 24px;text-align:center;">
+  <div style="display:flex;justify-content:center;gap:28px;margin-bottom:16px;flex-wrap:wrap;">
+    <a href="https://github.com/ConsoleSun/boss-zhipin-helper" target="_blank" style="color:var(--text-muted);text-decoration:none;font-size:13px;">GitHub</a>
+    <a href="https://gitee.com/sunjunshuai/boss-zhipin-helper" target="_blank" style="color:var(--text-muted);text-decoration:none;font-size:13px;">Gitee</a>
+  </div>
+  <p style="font-size:12px;color:var(--text-muted);">© 2025 BOSS直聘助手 · MIT License · 仅供学习参考</p>
+</footer>
 
-  <!-- ==================== FAQ ==================== -->
-  <section id="faq">
-    <div class="section-header">
-      <span class="section-tag">FAQ</span>
-      <h2>常见问题</h2>
-    </div>
+<script>
+  // Scroll animations
+  const obs = new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';}})},{threshold:0.08});
+  document.querySelectorAll('.feat-card,.showcase-row').forEach(el=>{el.style.opacity='0';el.style.transform='translateY(30px)';el.style.transition='opacity .6s,transform .6s cubic-bezier(0.4,0,0.2,1)';obs.observe(el);});
+  document.querySelectorAll('.feat-card').forEach((c,i)=>{c.style.transitionDelay=`${i*0.06}s`;});
 
-    <div class="faq-list">
-      <details class="faq-item">
-        <summary>支持哪些招聘平台？</summary>
-        <div class="faq-answer">目前支持 <strong>BOSS直聘</strong>（boss.cn / zhipin.com）和 <strong>智联招聘</strong>（zhaopin.com / zhaopin.cn）。选择器系统支持多级回退，网站改版时大部分功能可自愈。</div>
-      </details>
-
-      <details class="faq-item">
-        <summary>MiMo 和 DeepSeek 如何选择？</summary>
-        <div class="faq-answer">
-          <strong>DeepSeek</strong>：响应快速，15秒内返回，稳定性好，推荐日常使用。<br>
-          <strong>MiMo 2.5</strong>：推理模型，回复质量更高但耗时较长（45秒超时），适合追求回复质量的场景。扩展已对 MiMo 的 reasoning_content 字段做兼容处理，直接使用即可。<br>
-          两个模型都需要自行申请 API Key。
-        </div>
-      </details>
-
-      <details class="faq-item">
-        <summary>我的数据安全吗？</summary>
-        <div class="faq-answer">绝对安全。所有投递记录、聊天消息、岗位信息、AI 对话历史全部存储在浏览器本地（IndexedDB + chrome.storage.local），<strong>数据不会上传到任何服务器</strong>。AI API 调用仅发送当前对话上下文，不传输历史数据。</div>
-      </details>
-
-      <details class="faq-item">
-        <summary>如何更新扩展？</summary>
-        <div class="faq-answer">从 GitHub 或 Gitee 拉取最新代码，然后在 <code>chrome://extensions</code> 点击扩展的刷新按钮即可。数据存储在浏览器中，更新不会丢失。</div>
-      </details>
-
-      <details class="faq-item">
-        <summary>为什么点击按钮没有反应？</summary>
-        <div class="faq-answer">请检查：1) 是否已在设置页填写 API Key；2) 当前页面是否为职位详情页或聊天页（职位列表页不会显示 AI 助手面板）；3) 点击右下角 🐛 调试按钮查看日志；4) 确认扩展已正确加载（F12 控制台搜索 [BossHelper]）</div>
-      </details>
-    </div>
-  </section>
-
-  <!-- ==================== CTA ==================== -->
-  <section id="cta">
-    <div class="cta-box">
-      <h2>准备好提升求职效率了吗？</h2>
-      <p>免费开源，MIT 协议，在 GitHub & Gitee 同步更新</p>
-      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
-        <a href="https://github.com/ConsoleSun/boss-zhipin-helper" class="btn btn-primary" target="_blank">
-          ⭐ GitHub 获取
-        </a>
-        <a href="https://gitee.com/sunjunshuai/boss-zhipin-helper" class="btn btn-outline" target="_blank">
-          Gitee 镜像
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ==================== FOOTER ==================== -->
-  <footer>
-    <div class="footer-inner">
-      <div class="footer-links">
-        <a href="https://github.com/ConsoleSun/boss-zhipin-helper" target="_blank">GitHub</a>
-        <a href="https://gitee.com/sunjunshuai/boss-zhipin-helper" target="_blank">Gitee</a>
-        <a href="https://github.com/ConsoleSun/boss-zhipin-helper/blob/main/README.md" target="_blank">文档</a>
-      </div>
-      <p class="footer-copy">© 2025 BOSS直聘助手 · MIT License · 仅供学习参考</p>
-    </div>
-  </footer>
-
-  <!-- ==================== Scroll Animation ==================== -->
-  <script>
-    // Intersection Observer for scroll animations
-    const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.style.opacity = '1';
-          entry.target.style.transform = 'translateY(0)';
-        }
-      });
-    }, observerOptions);
-
-    // Animate feature cards, showcase cards, steps, faq items
-    document.querySelectorAll('.feature-card, .showcase-card, .step, .faq-item, .stat-item').forEach(el => {
-      el.style.opacity = '0';
-      el.style.transform = 'translateY(30px)';
-      el.style.transition = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.4,0,0.2,1)';
-      observer.observe(el);
-    });
-
-    // Stagger animation delay for feature cards
-    document.querySelectorAll('.feature-card').forEach((card, i) => {
-      card.style.transitionDelay = `${i * 0.08}s`;
-    });
-
-    // Nav scroll effect
-    const nav = document.querySelector('.nav');
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 80) {
-        nav.style.background = 'rgba(10,10,26,0.9)';
-        nav.style.boxShadow = '0 4px 30px rgba(0,0,0,0.3)';
-      } else {
-        nav.style.background = 'rgba(10,10,26,0.75)';
-        nav.style.boxShadow = 'none';
-      }
-    });
-  </script>
+  // Nav shadow on scroll
+  const nav=document.querySelector('.nav');
+  addEventListener('scroll',()=>{if(scrollY>80){nav.style.background='rgba(10,10,26,0.9)';nav.style.boxShadow='0 4px 30px rgba(0,0,0,0.3)';}else{nav.style.background='rgba(10,10,26,0.75)';nav.style.boxShadow='none';}});
+</script>
 </body>
 </html>
