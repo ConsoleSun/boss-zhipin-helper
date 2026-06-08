@@ -359,6 +359,15 @@
 
     @media (max-width:640px) {
       #how-it-works > div > div:first-of-type { grid-template-columns:repeat(2,1fr); gap:8px; }
+      /* Mobile phones: 2 cols on tablet, horizontal scroll on phone handled below */
+    }
+
+    /* ========== Phone (≤768px): phones stack vertical ========== */
+    @media (max-width:768px) {
+      #mobile > div:first-of-type {
+        grid-template-columns:1fr; max-width:300px; margin:0 auto; gap:32px;
+      }
+      .phone-frame { max-width:260px; }
     }
 
     /* ========== Small Phone (≤380px) ========== */
