@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BOSS直聘助手 — AI求职辅助 Chrome 扩展</title>
-  <meta name="description" content="BOSS直聘/智联招聘求职助手，AI打招呼、智能回复、简历解析、岗位管理、数据统计，双模型支持 DeepSeek & MiMo 2.5">
-  <meta property="og:title" content="BOSS直聘助手 — AI求职辅助 Chrome 扩展">
-  <meta property="og:description" content="AI打招呼、智能回复、简历解析、岗位管理，让求职效率翻倍">
+  <title>BOSS直聘助手 — 全平台 AI 求职工具（Chrome 扩展 + Android 悬浮窗）</title>
+  <meta name="description" content="BOSS直聘/智联招聘求职助手，AI打招呼、智能回复、简历解析、岗位管理。提供 Chrome 扩展 + Android 悬浮窗双端支持，双模型 DeepSeek & MiMo 2.5">
+  <meta property="og:title" content="BOSS直聘助手 — 全平台 AI 求职工具">
+  <meta property="og:description" content="Chrome 扩展 + Android 悬浮窗双端覆盖，AI 求职效率翻倍">
   <meta property="og:type" content="website">
   <style>
     /* ========== Reset & Variables ========== */
@@ -371,7 +371,7 @@
   <div class="nav-inner">
     <a href="#" class="nav-logo"><span class="icon">✦</span> BOSS直聘助手</a>
     <ul class="nav-links">
-      <li><a href="#features">功能</a></li><li><a href="#showcase">界面</a></li><li><a href="#howto">安装</a></li><li><a href="#faq">FAQ</a></li>
+      <li><a href="#features">功能</a></li><li><a href="#showcase">界面</a></li><li><a href="#mobile">手机端</a></li><li><a href="#howto">安装</a></li><li><a href="#faq">FAQ</a></li>
     </ul>
     <a href="https://github.com/ConsoleSun/boss-zhipin-helper" class="nav-cta" target="_blank">⭐ GitHub</a>
   </div>
@@ -382,8 +382,8 @@
   <div class="hero-inner">
     <div class="hero-text">
       <div class="hero-badge"><span class="dot"></span> Chrome Extension · Manifest V3</div>
-      <h1>AI 驱动的<br><span class="gradient-text">求职效率工具</span></h1>
-      <p>专为 BOSS直聘 & 智联招聘打造。自动抓取JD、AI智能回复、简历解析、数据统计——让每一次沟通都精准高效。</p>
+      <h1>全平台 <span class="gradient-text">AI 求职助手</span></h1>
+      <p>Chrome 浏览器扩展 + Android 悬浮窗应用，双端覆盖 BOSS直聘 & 智联招聘。自动抓取JD、AI智能回复、简历解析、数据统计——让每一次沟通都精准高效。</p>
       <div class="hero-btns">
         <a href="https://github.com/ConsoleSun/boss-zhipin-helper" class="btn btn-primary" target="_blank">⬇ 免费获取</a>
         <a href="#features" class="btn btn-outline">了解更多 ↓</a>
@@ -537,6 +537,76 @@
   </div>
 </section>
 
+<!-- ====== MOBILE APP ====== -->
+<section id="mobile" style="padding:40px 24px 80px;">
+  <div class="section-header"><span class="section-tag">手机端</span><h2>Android 悬浮窗助手</h2><p>跨应用覆盖招聘 App，WindowManager 系统级悬浮窗，搭配无障碍服务自动读取屏幕并填入 AI 回复</p></div>
+
+  <div class="showcase-row">
+    <div class="showcase-label">
+      <span class="tag">Word助手</span>
+      <h3>悬浮窗 AI 求职</h3>
+      <p>紫色圆钮拖拽移动，透明面板覆盖在 BOSS直聘/智联招聘 App 上方。无障碍服务自动抓取 JD、读取屏幕文字、一键填入 AI 回复到输入框。</p>
+      <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;">
+        <a href="https://github.com/ConsoleSun/Word-Assistant" class="btn btn-primary" target="_blank" style="font-size:13px;padding:10px 20px;">⬇ GitHub 下载</a>
+        <a href="https://gitee.com/sunjunshuai/word-assistant" class="btn btn-outline" target="_blank" style="font-size:13px;padding:10px 20px;">Gitee 镜像</a>
+      </div>
+    </div>
+    <div class="showcase-device">
+      <!-- Phone mockup -->
+      <div style="position:relative;width:280px;">
+        <div style="border:3px solid #2a2a4a;border-radius:28px;overflow:hidden;background:#0f0a2e;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+          <!-- Status bar -->
+          <div style="background:#1a1535;padding:10px 16px 6px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:9px;color:#6366f1;">10:28</span>
+            <span style="font-size:9px;color:#6366f1;">📶 🔋</span>
+          </div>
+          <!-- App screen -->
+          <div style="padding:12px;min-height:360px;position:relative;">
+            <!-- BOSS-like content -->
+            <div style="background:#1a1535;border-radius:8px;padding:10px;margin-bottom:10px;">
+              <div style="color:#e0e7ff;font-size:11px;font-weight:600;">前端开发工程师</div>
+              <div style="color:#c4b5fd;font-size:10px;">某科技有限公司 · 15K-25K</div>
+              <div style="color:#6366f1;font-size:9px;margin-top:4px;">📋 岗位职责：负责Web前端开发...<br>✅ 要求：React、TypeScript...</div>
+            </div>
+            <!-- Chat messages -->
+            <div style="background:#1a1535;border-radius:8px;padding:8px;margin-bottom:10px;">
+              <div style="color:#e0e7ff;font-size:10px;">👤 HR · 14:32</div>
+              <div style="color:#c4b5fd;font-size:10px;">您好，看到您的简历很符合我们的岗位要求，方便聊聊吗？</div>
+            </div>
+            <!-- Input bar -->
+            <div style="background:#1a1535;border-radius:8px;padding:8px;display:flex;align-items:center;gap:8px;">
+              <span style="color:#6366f1;font-size:10px;">💬 输入消息...</span>
+            </div>
+            <!-- Floating button mock -->
+            <div style="position:absolute;right:14px;top:140px;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#6366f1);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;opacity:0.85;box-shadow:0 2px 12px rgba(124,58,237,0.4);">W</div>
+            <!-- Chat panel mock overlay -->
+            <div style="position:absolute;bottom:50px;left:8px;right:8px;background:rgba(15,10,46,0.96);border:1px solid #2a2a4a;border-radius:12px;padding:10px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                <span style="color:#e0e7ff;font-size:10px;font-weight:600;">🤖 前端开发工程师</span>
+                <span style="color:#6366f1;font-size:9px;">− ×</span>
+              </div>
+              <div style="background:rgba(24,144,255,0.08);border-left:3px solid #1890ff;padding:6px 8px;border-radius:6px;margin-bottom:6px;">
+                <div style="color:#1677cc;font-size:8px;font-weight:600;">📥 HR消息</div>
+                <div style="color:#c4b5fd;font-size:9px;">方便聊聊吗？</div>
+              </div>
+              <div style="background:rgba(82,196,26,0.08);border-left:3px solid #52c41a;padding:6px 8px;border-radius:6px;margin-bottom:6px;">
+                <div style="color:#389e0d;font-size:8px;font-weight:600;">🤖 AI回复</div>
+                <div style="color:#c4b5fd;font-size:9px;">您好！我对贵公司的前端岗位非常感兴趣，有3年React+TS经验...</div>
+              </div>
+              <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                <span style="background:#238636;color:#fff;padding:3px 8px;border-radius:6px;font-size:8px;">发送</span>
+                <span style="background:#333;color:#ccc;padding:3px 8px;border-radius:6px;font-size:8px;">招呼</span>
+                <span style="background:#333;color:#ccc;padding:3px 8px;border-radius:6px;font-size:8px;">复制</span>
+                <span style="background:#333;color:#ccc;padding:3px 8px;border-radius:6px;font-size:8px;">填入</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ====== HOW TO USE ====== -->
 <section id="howto" style="padding:60px 24px 100px;">
   <div class="section-header"><span class="section-tag">使用教程</span><h2>详细安装指南</h2><p>从下载到上手，每一步都有清晰指引</p></div>
@@ -648,10 +718,16 @@
     <div style="position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(102,126,234,0.05)0%,transparent 60%);"></div>
     <div style="position:relative;z-index:1;">
       <h2 style="font-size:30px;font-weight:800;margin-bottom:12px;">准备好提升求职效率了吗？</h2>
-      <p style="color:var(--text-muted);margin-bottom:28px;font-size:15px;">免费开源，MIT 协议，GitHub & Gitee 同步更新</p>
-      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
-        <a href="https://github.com/ConsoleSun/boss-zhipin-helper" class="btn btn-primary" target="_blank">⭐ GitHub 获取</a>
-        <a href="https://gitee.com/sunjunshuai/boss-zhipin-helper" class="btn btn-outline" target="_blank">Gitee 镜像</a>
+      <p style="color:var(--text-muted);margin-bottom:28px;font-size:15px;">全平台覆盖 · 免费开源 · MIT 协议</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;">
+        <span style="background:rgba(102,126,234,0.1);border:1px solid rgba(102,126,234,0.15);padding:4px 12px;border-radius:14px;font-size:12px;color:#a0a8f0;">🖥️ Chrome 扩展</span>
+        <a href="https://github.com/ConsoleSun/boss-zhipin-helper" class="btn btn-primary" target="_blank" style="font-size:13px;padding:10px 22px;">⭐ GitHub</a>
+        <a href="https://gitee.com/sunjunshuai/boss-zhipin-helper" class="btn btn-outline" target="_blank" style="font-size:13px;padding:10px 22px;">Gitee</a>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <span style="background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.15);padding:4px 12px;border-radius:14px;font-size:12px;color:#c4b5fd;">📱 Android 悬浮窗</span>
+        <a href="https://github.com/ConsoleSun/Word-Assistant" class="btn btn-primary" target="_blank" style="font-size:13px;padding:10px 22px;">⭐ GitHub</a>
+        <a href="https://gitee.com/sunjunshuai/word-assistant" class="btn btn-outline" target="_blank" style="font-size:13px;padding:10px 22px;">Gitee</a>
       </div>
     </div>
   </div>
@@ -660,10 +736,15 @@
 <!-- ====== FOOTER ====== -->
 <footer style="border-top:1px solid var(--border);padding:36px 24px;text-align:center;">
   <div style="display:flex;justify-content:center;gap:28px;margin-bottom:16px;flex-wrap:wrap;">
+    <span style="color:var(--text-muted);font-size:12px;">🖥️ 扩展</span>
     <a href="https://github.com/ConsoleSun/boss-zhipin-helper" target="_blank" style="color:var(--text-muted);text-decoration:none;font-size:13px;">GitHub</a>
     <a href="https://gitee.com/sunjunshuai/boss-zhipin-helper" target="_blank" style="color:var(--text-muted);text-decoration:none;font-size:13px;">Gitee</a>
+    <span style="color:#6366f1;margin:0 4px;">|</span>
+    <span style="color:var(--text-muted);font-size:12px;">📱 手机端</span>
+    <a href="https://github.com/ConsoleSun/Word-Assistant" target="_blank" style="color:var(--text-muted);text-decoration:none;font-size:13px;">GitHub</a>
+    <a href="https://gitee.com/sunjunshuai/word-assistant" target="_blank" style="color:var(--text-muted);text-decoration:none;font-size:13px;">Gitee</a>
   </div>
-  <p style="font-size:12px;color:var(--text-muted);">© 2025 BOSS直聘助手 · MIT License · 仅供学习参考</p>
+  <p style="font-size:12px;color:var(--text-muted);">© 2025 BOSS直聘助手 · 全平台 AI 求职工具 · MIT License · 仅供学习参考</p>
 </footer>
 
 <script>
