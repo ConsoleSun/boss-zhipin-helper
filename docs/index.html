@@ -260,16 +260,106 @@
     .ext-ui .chat-btn.primary { background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; border:none; }
     .ext-ui .chat-btn:hover { transform:translateY(-1px); }
 
-    @media (max-width:900px) {
-      .hero-inner { grid-template-columns:1fr; gap:40px; }
+    /* ========== Tablet (≤1024px) ========== */
+    @media (max-width:1024px) {
+      .hero-inner { grid-template-columns:1fr; gap:36px; }
       .hero-mockup { order:-1; }
+      .hero h1 { font-size:clamp(28px,6vw,40px); }
       .features-grid { grid-template-columns:repeat(2,1fr); }
-      .showcase-row, .showcase-row.reverse { flex-direction:column; }
-      .showcase-label p { max-width:100%; }
-      .hero h1 { font-size:32px; }
       .nav-links { display:none; }
+      .showcase-row, .showcase-row.reverse { flex-direction:column; gap:24px; }
+      .showcase-label { text-align:center; }
+      .showcase-label p { max-width:100%; }
+      .showcase-device { overflow-x:auto; max-width:100%; justify-content:center; }
+      /* Scale down extension UIs */
+      .ext-ui.popup { width:300px; }
+      .ext-ui.dashboard { width:100%; max-width:480px; }
+      .ext-ui.settings-page { width:100%; max-width:520px; flex-direction:column; }
+      .ext-ui.settings-page .set-sidebar { width:100%; display:flex; padding:10px 12px; gap:6px; overflow-x:auto; height:auto; }
+      .ext-ui.settings-page .set-sidebar h5 { display:none; }
+      .ext-ui.settings-page .set-sidebar .set-nav { white-space:nowrap; flex-shrink:0; }
+      .ext-ui.settings-page .set-content { padding:14px; }
+      .ext-ui.chat-panel { width:100%; max-width:360px; }
+      .overview-row { grid-template-columns:repeat(2,1fr); }
     }
-    @media (max-width:600px) { .features-grid { grid-template-columns:1fr; } .hero-btns { flex-direction:column; } }
+
+    /* ========== Phone (≤640px) ========== */
+    @media (max-width:640px) {
+      .hero { padding:100px 16px 60px; min-height:auto; }
+      .hero h1 { font-size:26px; }
+      .hero p { font-size:15px; }
+      .hero-btns { flex-direction:column; align-items:stretch; }
+      .hero-btns .btn { justify-content:center; text-align:center; }
+      .mockup-card { width:100%; max-width:300px; transform:none; }
+      .features-grid { grid-template-columns:1fr; gap:12px; }
+      .feat-card { padding:20px 16px; }
+      .section-header { margin-bottom:36px; }
+      .section-header h2 { font-size:24px; }
+
+      /* Showcase mobile */
+      .showcase-row, .showcase-row.reverse { gap:16px; }
+      .showcase-device { padding:0 4px; width:100%; }
+      /* Extension UIs - shrink to fit */
+      .ext-ui.popup { width:100%; max-width:300px; border-radius:12px; }
+      .ext-ui.popup .popup-hdr { padding:12px; }
+      .ext-ui.popup .popup-hdr h4 { font-size:13px; }
+      .ext-ui.popup .popup-section { padding:8px 10px; }
+      .ext-ui.popup .stat-grid { gap:4px; }
+      .ext-ui.popup .stat-card { padding:8px 2px; }
+      .ext-ui.popup .stat-card .val { font-size:16px; }
+      .ext-ui.popup .stat-card .lbl { font-size:8px; }
+      .ext-ui.popup .popup-footer-row { padding:8px 10px; }
+      .ext-ui.popup .btn-sm { font-size:11px; padding:7px; }
+
+      .ext-ui.dashboard { width:100%; max-width:100%; padding:10px; border-radius:14px; }
+      .ext-ui.dashboard .dash-hdr { padding:10px 12px; margin-bottom:10px; }
+      .ext-ui.dashboard .dash-hdr h4 { font-size:14px; }
+      .ext-ui.dashboard .overview-row { grid-template-columns:1fr 1fr; gap:6px; }
+      .ext-ui.dashboard .ov-card { padding:10px 8px; gap:6px; }
+      .ext-ui.dashboard .ov-card .ov-icon { font-size:20px; width:30px; height:30px; }
+      .ext-ui.dashboard .ov-card .ov-val { font-size:16px; }
+      .ext-ui.dashboard .ov-card .ov-lbl { font-size:10px; }
+      .ext-ui.dashboard .chart-bars { height:40px; }
+      .ext-ui.dashboard .list-row { padding:8px; }
+      .ext-ui.dashboard .list-row .title { font-size:11px; }
+      .ext-ui.dashboard .list-row .sub { font-size:10px; }
+
+      .ext-ui.settings-page { width:100%; max-width:100%; flex-direction:column; border-radius:14px; }
+      .ext-ui.settings-page .set-sidebar { width:100%; display:flex; padding:8px 10px; gap:4px; overflow-x:auto; height:auto; flex-shrink:0; border-right:none; border-bottom:1px solid rgba(255,255,255,0.6); }
+      .ext-ui.settings-page .set-sidebar h5 { display:none; }
+      .ext-ui.settings-page .set-sidebar .set-nav { white-space:nowrap; flex-shrink:0; font-size:11px; padding:6px 10px; }
+      .ext-ui.settings-page .set-content { padding:12px; }
+      .ext-ui.settings-page .set-content h4 { font-size:13px; }
+      .ext-ui.settings-page .form-grp input, .ext-ui.settings-page .form-grp select, .ext-ui.settings-page .form-grp textarea { font-size:11px; padding:6px 8px; }
+
+      .ext-ui.chat-panel { width:100%; max-width:100%; border-radius:12px; }
+      .ext-ui.chat-panel .chat-hdr { font-size:12px; padding:8px 10px; }
+      .ext-ui.chat-panel .chat-body { padding:10px; min-height:auto; }
+      .ext-ui.chat-panel .chat-bubble { font-size:10px; padding:6px 10px; }
+      .ext-ui.chat-panel .chat-btns { gap:4px; }
+      .ext-ui.chat-panel .chat-btn { font-size:9px; padding:4px 8px; }
+      .ext-ui.chat-panel .chat-input-area textarea { height:36px; font-size:10px; }
+
+      /* CTA */
+      .btn { padding:12px 20px; font-size:14px; }
+      .nav-inner { padding:12px 16px; }
+      .nav-logo { font-size:15px; }
+      .nav-cta { padding:7px 16px; font-size:12px; }
+
+      /* FAQ */
+      #faq details { padding:16px; }
+      #faq summary { font-size:14px; }
+      section { padding-left:12px; padding-right:12px; }
+    }
+
+    /* ========== Small Phone (≤380px) ========== */
+    @media (max-width:380px) {
+      .hero h1 { font-size:22px; }
+      .ext-ui.popup { transform:scale(0.85); transform-origin:top center; margin-bottom:-40px; }
+      .ext-ui.dashboard .overview-row { grid-template-columns:1fr 1fr; }
+      .ext-ui.dashboard .chart-box { display:none; }
+      .ext-ui.dashboard .list-box .badge-status { font-size:9px; padding:2px 6px; }
+    }
   </style>
 </head>
 <body>
