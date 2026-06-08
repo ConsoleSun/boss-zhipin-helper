@@ -272,10 +272,10 @@
       .showcase-label p { max-width:100%; }
       .showcase-device { overflow-x:auto; max-width:100%; justify-content:center; }
       /* Core tech grid → 2 cols */
-      #how-it-works > div > div:first-of-type { grid-template-columns:repeat(2,1fr); }
-      /* Mobile phones grid → 2 cols or scroll */
-      #mobile > div:first-of-type { grid-template-columns:repeat(3,240px); overflow-x:auto; -webkit-overflow-scrolling:touch; scroll-snap-type:x mandatory; padding-bottom:8px; }
-      #mobile > div:first-of-type > div { scroll-snap-align:start; }
+      .tech-grid { grid-template-columns:repeat(2,1fr) !important; }
+      /* Mobile phones grid → horizontal scroll */
+      .mobile-grid { grid-template-columns:repeat(3,240px) !important; overflow-x:auto; -webkit-overflow-scrolling:touch; scroll-snap-type:x mandatory; padding-bottom:8px; }
+      .mobile-grid > div { scroll-snap-align:start; }
       /* Scale down extension UIs */
       .ext-ui.popup { width:300px; }
       .ext-ui.dashboard { width:100%; max-width:480px; }
@@ -358,21 +358,19 @@
     }
 
     @media (max-width:640px) {
-      #how-it-works > div > div:first-of-type { grid-template-columns:repeat(2,1fr); gap:8px; }
+      .tech-grid { grid-template-columns:repeat(2,1fr) !important; gap:8px; }
       /* Mobile phones: 2 cols on tablet, horizontal scroll on phone handled below */
     }
 
     /* ========== Phone (≤768px): phones stack vertical ========== */
     @media (max-width:768px) {
-      #mobile > div:first-of-type {
-        grid-template-columns:1fr; max-width:300px; margin:0 auto; gap:32px;
-      }
+      .mobile-grid { grid-template-columns:1fr !important; max-width:300px; margin:0 auto; gap:32px; }
       .phone-frame { max-width:260px; }
     }
 
     /* ========== Small Phone (≤380px) ========== */
     @media (max-width:380px) {
-      #how-it-works > div > div:first-of-type { grid-template-columns:1fr 1fr; }
+      .tech-grid { grid-template-columns:repeat(2,1fr) !important; gap:6px; }
       .hero h1 { font-size:22px; }
       .ext-ui.popup { transform:scale(0.85); transform-origin:top center; margin-bottom:-40px; }
       .ext-ui.dashboard .overview-row { grid-template-columns:1fr 1fr; }
@@ -560,7 +558,7 @@
 <section id="how-it-works" style="padding:40px 24px 60px;">
   <div class="section-header"><span class="section-tag">核心技术</span><h2>AI 驱动的智能沟通</h2><p>不只是简单的 AI 回复——将你的简历、岗位要求和历史对话融合分析，生成精准高效的求职消息</p></div>
   <div style="max-width:var(--max-w);margin:0 auto;">
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;text-align:center;">
+    <div class="tech-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;text-align:center;">
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:24px 16px;">
         <div style="font-size:32px;margin-bottom:10px;">📄</div>
         <div style="font-weight:700;font-size:14px;margin-bottom:6px;">用户简历</div>
@@ -606,7 +604,7 @@
     .p-label { color:var(--text-muted); font-size:11px; margin-top:8px; text-align:center; line-height:1.5; }
   </style>
 
-  <div style="max-width:var(--max-w);margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;align-items:start;">
+  <div class="mobile-grid" style="max-width:var(--max-w);margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;align-items:start;">
 
     <!-- Phone 1: Settings — all 5 tabs -->
     <div style="text-align:center;">
