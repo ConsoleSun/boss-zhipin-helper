@@ -213,7 +213,6 @@ export class AIReplyAssistant {
    * 监听搜索页岗位卡片点击，自动提取右侧详情面板信息
    */
   _watchSearchPageDetail() {
-    // 方式1: 监听 job-card 点击（事件委托）
     const handleJobCardClick = () => {
       // 延迟等待 React 渲染右侧面板
       setTimeout(() => {
@@ -227,39 +226,60 @@ export class AIReplyAssistant {
       }, 600);
     };
 
-    // 在 job-list-container 上做事件委托
-    const listContainer = document.querySelector('.job-list-container, [class*="job-list"]');
-    if (listContainer) {
-      listContainer.addEventListener('click', (e) => {
-        const card = e.target.closest('[class*="job-card"], .job-item, li[class*="job"]');
-        if (card) handleJobCardClick();
-      });
-    }
+    // 方式1: 在 document.body 上做事件委托（DOM 可能还未渲染）
+    document.body.addEventListener('click', (e) => {
+      const card = e.target.closest('.job-card-wrap, .job-card-box, .job-item, [class*="job-card"]');
+      if (card) handleJobCardClick();
+    }, true); // 捕获阶段，确保在 React 事件之前
 
-    // 方式2: MutationObserver 监听详情面板变化（兜底）
-    const detailBox = document.querySelector('.job-detail-box');
-    if (detailBox) {
-      this._detailObserver?.disconnect();
-      let detailTimer = null;
-      this._detailObserver = new MutationObserver(() => {
-        clearTimeout(detailTimer);
-        detailTimer = setTimeout(() => {
-          const job = this._extractSearchPageJob();
-          if (job) {
-            // 检查是否和已有选中岗位不同
-            if (!this.selectedJob ||
-                this.selectedJob.positionName !== job.positionName ||
-                this.selectedJob.companyName !== job.companyName) {
-              this._upsertJobAndSelect(job);
-              this._view = 'chat';
-              window.__bhDebug?.('log', '📋 详情面板更新: ' + job.positionName);
-              this._render();
-            }
+    // 方式2: MutationObserver 监听 body，检测 .job-detail-box 的增删
+    this._detailObserver?.disconnect();
+    let detailTimer = null;
+    this._detailObserver = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        for (const node of m.addedNodes) {
+          if (node.nodeType !== Node.ELEMENT_NODE) continue;
+          // 检测 job-detail-box 出现或内容变化
+          if (node.classList?.contains('job-detail-box') ||
+              node.querySelector?.('.job-detail-box')) {
+            clearTimeout(detailTimer);
+            detailTimer = setTimeout(() => {
+              const job = this._extractSearchPageJob();
+              if (job) {
+                if (!this.selectedJob ||
+                    this.selectedJob.positionName !== job.positionName ||
+                    this.selectedJob.companyName !== job.companyName) {
+                  this._upsertJobAndSelect(job);
+                  this._view = 'chat';
+                  window.__bhDebug?.('log', '📋 详情面板更新: ' + job.positionName);
+                  this._render();
+                }
+              }
+            }, 500);
           }
-        }, 500);
-      });
-      observer.observe(detailBox, { childList: true, subtree: true, characterData: true });
-    }
+        }
+      }
+      // 也检查直接修改（subtree 变化）
+      for (const m of mutations) {
+        if (m.target.closest?.('.job-detail-box') && m.type === 'childList') {
+          clearTimeout(detailTimer);
+          detailTimer = setTimeout(() => {
+            const job = this._extractSearchPageJob();
+            if (job) {
+              if (!this.selectedJob ||
+                  this.selectedJob.positionName !== job.positionName ||
+                  this.selectedJob.companyName !== job.companyName) {
+                this._upsertJobAndSelect(job);
+                this._view = 'chat';
+                window.__bhDebug?.('log', '📋 详情面板更新: ' + job.positionName);
+                this._render();
+              }
+            }
+          }, 500);
+        }
+      }
+    });
+    this._detailObserver.observe(document.body, { childList: true, subtree: true });
   }
 
   async _selectJob(job) {
