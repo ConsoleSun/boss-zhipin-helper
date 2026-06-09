@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "BOSS直聘助手",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "BOSS直聘/智联招聘求职助手 — AI打招呼、智能回复、岗位管理",
   "default_locale": "zh_CN",
   "permissions": [
