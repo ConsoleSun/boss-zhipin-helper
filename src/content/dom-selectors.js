@@ -233,6 +233,44 @@ export const SELECTORS = {
     ],
   },
 
+  // ==================== 搜索页右侧详情面板 ====================
+  searchDetail: {
+    // 职位名称
+    positionName: [
+      '.job-detail-box .job-name',
+      '.job-detail-box .name',
+      '.job-detail-header .job-name',
+      '.job-detail-header h1',
+      '.job-detail-box h1',
+    ],
+    // 公司名称
+    companyName: [
+      '.job-detail-box .company-info a',
+      '.job-detail-header a[href*="company"]',
+      '.job-detail-info a[ka*="company"]',
+      '.job-detail-box a[ka*="company"]',
+    ],
+    // 薪资
+    salary: [
+      '.job-detail-box .job-salary',
+      '.job-detail-header .salary',
+      '.job-detail-box .salary',
+    ],
+    // 工作地点
+    location: [
+      '.job-detail-box .job-address',
+      '.job-address-desc',
+      '.company-location',
+    ],
+    // 职位描述正文
+    jobDescription: [
+      '.job-detail-body',
+      '.job-detail-body .job-detail-section',
+      '.job-detail-body .job-sec-text',
+      '.job-detail-box .job-desc',
+    ],
+  },
+
   // ==================== 通用 ====================
   common: {
     // 登录状态检测

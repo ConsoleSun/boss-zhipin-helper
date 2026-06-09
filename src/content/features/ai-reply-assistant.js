@@ -88,6 +88,12 @@ export class AIReplyAssistant {
         }
       }
 
+      // 搜索/列表页：监听岗位卡片点击，提取右侧详情面板的 JD
+      if (this.pageInfo.pageType === 'job_list' || this.pageInfo.pageType === 'home') {
+        this._watchSearchPageDetail();
+        window.__bhDebug?.('log', '📋 搜索页，已加载 ' + this.savedJobs.length + ' 个岗位，监听详情面板');
+      }
+
       // 如果有 conversationId，加载 BOSS 聊天记录
       if (this.pageInfo.conversationId) {
         const msgsRes = await sendToBackground(buildMessage(MSG.GET_MESSAGES, {
@@ -149,6 +155,111 @@ export class AIReplyAssistant {
       savedAt: Date.now(),
       pinned: false,
     };
+  }
+
+  /**
+   * 去重保存并选中岗位
+   */
+  async _upsertJobAndSelect(job) {
+    const matched = this.savedJobs.find(j =>
+      j.companyName === job.companyName && j.positionName === job.positionName
+    );
+    if (matched) {
+      // 更新已有记录
+      if (job.description) matched.description = job.description;
+      if (job.salary) matched.salary = job.salary;
+      if (job.location) matched.location = job.location;
+      await chrome.storage.local.set({ bh_jobs: this.savedJobs });
+      this.selectedJob = matched;
+    } else {
+      this.selectedJob = job;
+      this.savedJobs.unshift(job);
+      const max = this.userSettings?.maxJobs || 30;
+      const pinned = this.savedJobs.filter(j => j.pinned);
+      const unpinned = this.savedJobs.filter(j => !j.pinned);
+      chrome.storage.local.set({ bh_jobs: [...pinned, ...unpinned.slice(0, max)] });
+    }
+  }
+
+  /**
+   * 从搜索页右侧详情面板提取当前选中岗位的 JD
+   */
+  _extractSearchPageJob() {
+    const box = document.querySelector('.job-detail-box');
+    if (!box || box.offsetParent === null) return null;
+
+    const sel = SELECTORS.searchDetail;
+    const posEl = findElement(sel.positionName, box);
+    const compEl = findElement(sel.companyName, box);
+    const salEl = findElement(sel.salary, box);
+    const locEl = findElement(sel.location, box);
+    const descEl = findElement(sel.jobDescription, box);
+
+    const desc = (descEl?.innerText || '').trim().substring(0, 2000);
+    if (!desc || desc.length < 50) return null; // 详情面板可能还没加载完
+
+    return {
+      positionName: (posEl?.textContent || '').trim().substring(0, 50),
+      companyName: (compEl?.textContent || '').trim().substring(0, 50),
+      salary: (salEl?.textContent || '').trim(),
+      location: (locEl?.textContent || '').trim(),
+      description: desc,
+      savedAt: Date.now(),
+      pinned: false,
+    };
+  }
+
+  /**
+   * 监听搜索页岗位卡片点击，自动提取右侧详情面板信息
+   */
+  _watchSearchPageDetail() {
+    // 方式1: 监听 job-card 点击（事件委托）
+    const handleJobCardClick = () => {
+      // 延迟等待 React 渲染右侧面板
+      setTimeout(() => {
+        const job = this._extractSearchPageJob();
+        if (job) {
+          this._upsertJobAndSelect(job);
+          this._view = 'chat';
+          window.__bhDebug?.('log', '📋 搜索页选中岗位: ' + job.positionName + ' JD=' + job.description.length + '字');
+          this._render();
+        }
+      }, 600);
+    };
+
+    // 在 job-list-container 上做事件委托
+    const listContainer = document.querySelector('.job-list-container, [class*="job-list"]');
+    if (listContainer) {
+      listContainer.addEventListener('click', (e) => {
+        const card = e.target.closest('[class*="job-card"], .job-item, li[class*="job"]');
+        if (card) handleJobCardClick();
+      });
+    }
+
+    // 方式2: MutationObserver 监听详情面板变化（兜底）
+    const detailBox = document.querySelector('.job-detail-box');
+    if (detailBox) {
+      this._detailObserver?.disconnect();
+      let detailTimer = null;
+      this._detailObserver = new MutationObserver(() => {
+        clearTimeout(detailTimer);
+        detailTimer = setTimeout(() => {
+          const job = this._extractSearchPageJob();
+          if (job) {
+            // 检查是否和已有选中岗位不同
+            if (!this.selectedJob ||
+                this.selectedJob.positionName !== job.positionName ||
+                this.selectedJob.companyName !== job.companyName) {
+              this._upsertJobAndSelect(job);
+              this._view = 'chat';
+              window.__bhDebug?.('log', '📋 详情面板更新: ' + job.positionName);
+              this._render();
+            }
+          }
+        }, 500);
+      });
+      observer.observe(detailBox, { childList: true, subtree: true, characterData: true });
+    }
   }
 
   async _selectJob(job) {
@@ -991,5 +1102,9 @@ ${suffix}`;
 
   show() { this.visible = true; this.container.style.display = 'block'; }
   hide() { this.visible = false; this.container.style.display = 'none'; }
-  destroy() { this._chatObserver?.disconnect(); this.container?.remove(); }
+  destroy() {
+    this._chatObserver?.disconnect();
+    this._detailObserver?.disconnect();
+    this.container?.remove();
+  }
 }
