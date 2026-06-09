@@ -103,7 +103,8 @@
         }
 
         // AI 对话助手 — 职位详情页（抓JD）+ 聊天页（完整功能）
-        if (pageType === PAGE_TYPES.JOB_DETAIL || pageType === PAGE_TYPES.CHAT) {
+        if (pageType === PAGE_TYPES.JOB_DETAIL || pageType === PAGE_TYPES.CHAT ||
+            pageType === PAGE_TYPES.JOB_LIST || pageType === PAGE_TYPES.CANDIDATE_HOME) {
           const aiAssistant = new AIReplyAssistant(this.pageInfo);
           aiAssistant.initialize().then(() => {
             aiAssistant.show();
